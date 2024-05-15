@@ -2,11 +2,9 @@ mod btree;
 use polars::lazy::dsl::Expr;
 use polars::prelude::*;
 use polars::series::Series;
-use std::collections::{HashMap, HashSet};
-use std::fs::File;
-use std::ops::Deref;
+use std::collections::HashSet;
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub struct Rule {
     dimension: String,
     cutoff: f64,
@@ -17,13 +15,13 @@ pub struct Rule {
 // 1. do not are equivalent to rust enums which are actually sum types
 // 2. we target also 64bit execution platforms like webasm
 #[derive(Debug)]
-struct Decision {
+pub struct Decision {
     rule: Option<Rule>,
     confidence: f64,
-    prediction: u32,
+    prediction: String,
 }
 
-struct DTreeBuilder {
+pub struct DTreeBuilder {
     max_level: usize,
     min_size: usize,
 }
@@ -32,60 +30,43 @@ struct DTreeBuilder {
 impl DTreeBuilder {
     fn build_node(
         &self,
-        data: DataFrame,
+        data: & DataFrame,
         level: usize,
         features: HashSet<&str>,
         target: &str,
-    ) -> Option<btree::Node<Decision>> {
-        let selection: &UInt32Chunked = data.column(target).unwrap().u32().unwrap();
-        let node = predict_majority(&mut selection.iter())?;
-        Some(btree::Node::new(node))
+    ) -> PolarsResult<btree::Node<Decision>> {
+        let mut prediction = predict_majority_dataframe(data, target)?;
+        let mut node = btree::Node::new(prediction);
+        // check stop conditions
+        if (prediction.confidence < 1.0) && // all elements belong to one category
+            (data.shape().0 > self.min_size) && // size is below minimum threshold
+            (level <= self.max_level){ // maximum depth reached
+                let rule = evaluate_best_split(data, features, target)?;
+                let higher = data
+                    .clone()
+                    .lazy()
+                    .filter(col(& rule.dimension).gt(rule.cutoff))
+                    .collect();
+                let lower = data
+                    .clone()
+                    .lazy()
+                    .filter(col(& rule.dimension).gt_eq(rule.cutoff))
+                    .collect();
+                prediction.rule = Some(rule);
+                node.left = self.build_node(higher, level + 1, features, target).into();
+                node.right = self.build_node(lower, level + 1, features, target).into();
+            }
+        Ok(node)
     }
-    pub fn build<'a>(
+    pub fn build(
         &self,
-        data: DataFrame,
+        data: & DataFrame,
         features: HashSet<&str>,
         target: &str,
-    ) -> btree::Tree<Decision> {
-        if let Some(node) = self.build_node(data, 1, features, target) {
-            btree::Tree::from_node(node)
-        } else {
-            btree::Tree::new()
-        }
+    ) -> PolarsResult<btree::Tree<Decision>> {
+        let root = self.build_node(data, 1, features, target)?;
+        Ok(btree::Tree::from_node(root))
     }
-}
-
-// when creating a node first check which would be the prodicted outcome
-fn predict_majority<'a>(values: &mut dyn Iterator<Item = Option<u32>>) -> Option<Decision> {
-    let summary: HashMap<u32, u32> = count_groups(values);
-    let (prediction, count, total) =
-        summary
-            .iter()
-            .fold((None, 0, 0), |(result, count, total), (key, value)| {
-                if *value > count {
-                    (Some(key), *value, total + value)
-                } else {
-                    (result, count, total + value)
-                }
-            });
-    if let Some(result) = prediction {
-        Some(Decision {
-            rule: None,
-            confidence: count as f64 / total as f64,
-            prediction: *result,
-        })
-    } else {
-        None
-    }
-}
-
-pub fn count_groups(values: &mut dyn Iterator<Item = Option<u32>>) -> HashMap<u32, u32> {
-    values
-        .filter_map(|s| s)
-        .fold(HashMap::new(), |mut result, value| {
-            result.insert(value, result.get(&value).unwrap_or(&0) + 1);
-            result
-        })
 }
 
 // Gini impurity metric
@@ -104,20 +85,24 @@ pub fn estimate_gini(data: &DataFrame, target: &str) -> PolarsResult<f64> {
 }
 
 // returns the name of the majority category
-pub fn predict_majority_dataframe<'a>(data: &'a DataFrame, target: &str) -> PolarsResult<String> {
+pub fn predict_majority_dataframe<'a>(data: &'a DataFrame, target: &str) -> PolarsResult<Decision> {
     // extract the categorical target column
     let labels = data.column(target)?.categorical()?;
+
+    let total = labels.len() as f64;
 
     // count all categories and sort them
     let result_count = labels.value_counts()?;
     println!("{1:->0$}{2:?}{1:-<0$}", 20, "\n", result_count);
 
     // get the most frequent category
-    let result_cat = result_count.column(target)?.head(Some(1));
+    let result_cat = result_count.head(Some(1));
     println!("{1:->0$}{2:?}{1:-<0$}", 20, "\n", result_cat);
 
     // transform the series into a categorical vector
-    let actual_cat = result_cat.categorical()?;
+    let actual_cat = result_cat
+        .column(target)?
+        .categorical()?;
 
     // collect all categories as strings
     let string_cat: Vec<String> = actual_cat
@@ -127,8 +112,27 @@ pub fn predict_majority_dataframe<'a>(data: &'a DataFrame, target: &str) -> Pola
         .collect();
     println!("{1:->0$}{2:?}{1:-<0$}", 20, "\n", string_cat);
 
+    let probability: Vec<f64>= result_cat
+        .column("counts")?
+        .f64()?
+    .iter()
+    .flatten()
+    .map(|c| c/total)
+        .collect();
     // return the most common category as a string
-    return Ok(string_cat.get(0).unwrap().deref().into());
+    return Ok(
+        Decision{
+            rule: None,
+            prediction: string_cat
+                .get(0)
+                .unwrap()
+                .to_owned(),
+            confidence: probability
+                .get(0)
+                .unwrap()
+                .to_owned()
+        }
+    );
 }
 
 //evaluate the metric on all splits
@@ -235,54 +239,4 @@ pub fn evaluate_best_split(
 
 #[cfg(test)]
 mod test {
-    use crate::{count_groups, predict_majority};
-
-    #[test]
-    fn test_count_groups() {
-        let input: [Option<u32>; 14] = [
-            Some(1u32),
-            Some(1u32),
-            Some(3u32),
-            Some(2u32),
-            None,
-            Some(1u32),
-            None,
-            Some(2u32),
-            Some(3u32),
-            None,
-            Some(2u32),
-            Some(2u32),
-            None,
-            None,
-        ];
-        let result = count_groups(&mut input.iter().map(|s| *s));
-        println!("{:?}", result);
-        assert_eq!(result.get(&2u32), Some(&4u32));
-    }
-
-    #[test]
-    fn test_predict_majority() {
-        let input: [Option<u32>; 14] = [
-            Some(1u32),
-            Some(1u32),
-            Some(3u32),
-            Some(2u32),
-            None,
-            Some(1u32),
-            None,
-            Some(2u32),
-            Some(3u32),
-            None,
-            Some(2u32),
-            Some(2u32),
-            None,
-            None,
-        ];
-        let result = predict_majority(&mut input.iter().map(|s| *s));
-        assert!(result.is_some());
-        let result = result.unwrap();
-        assert_eq!(result.prediction, 2u32);
-        assert!(result.confidence < 0.5);
-        assert!(result.confidence > 0.4);
-    }
 }

@@ -2,9 +2,9 @@ use std::fmt::Debug;
 
 #[derive(Debug)]
 pub struct Node<T> {
-    value: T,
-    left: Option<Box<Node<T>>>,
-    right: Option<Box<Node<T>>>,
+    pub value: T,
+    pub left: Option<Box<Node<T>>>,
+    pub right: Option<Box<Node<T>>>,
 }
 
 impl<T> Node<T> {
