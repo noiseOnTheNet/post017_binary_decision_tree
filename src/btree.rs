@@ -83,15 +83,15 @@ enum Address {
     Completed,
 }
 
-pub struct TreeIter<'a, T> {
+pub struct DepthTraversalIter<'a, T> {
     stack: Vec<(Address, &'a Node<T>)>,
 }
 
-impl<'a, T> TreeIter<'a, T> {
-    fn new(tree: &'a Tree<T>) -> TreeIter<'a, T> {
+impl<'a, T> DepthTraversalIter<'a, T> {
+    fn new(tree: &'a Tree<T>) -> DepthTraversalIter<'a, T> {
         match tree.root {
-            None => TreeIter { stack: Vec::new() },
-            Some(ref node) => TreeIter {
+            None => DepthTraversalIter { stack: Vec::new() },
+            Some(ref node) => DepthTraversalIter {
                 stack: vec![(Address::Enter, &node)],
             },
         }
@@ -128,18 +128,31 @@ impl<'a, T> TreeIter<'a, T> {
     }
 }
 
-impl<'a, T> Iterator for TreeIter<'a, T> {
-    type Item = &'a T;
+impl<'a, T> Iterator for DepthTraversalIter<'a, T> {
+    type Item = & 'a T;
     fn next(&mut self) -> Option<Self::Item> {
         self.next_item()
     }
 }
 
-impl<'a, T> IntoIterator for &'a Tree<T> {
-    type Item = &'a T;
-    type IntoIter = TreeIter<'a, T>;
-    fn into_iter(self) -> Self::IntoIter {
-        TreeIter::new(self)
+pub struct BreadthTraversalIter<'a, T>{
+    stack: Vec<& 'a Node<T>>
+}
+
+impl<'a, T> Iterator for BreadthTraversalIter<'a, T>{
+    type Item = & 'a T;
+    fn next(&mut self) -> Option<Self::Item> {
+        if let Some(node) = self.stack.pop() {
+            if let Some(ref left) = node.left{
+                self.stack.push(& left);
+            }
+            if let Some(ref right) = node.right{
+                self.stack.push(& right);
+            }
+            Some(& node.value)
+        }else{
+            None
+        }
     }
 }
 
