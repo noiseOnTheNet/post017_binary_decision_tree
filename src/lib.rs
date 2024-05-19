@@ -4,7 +4,7 @@ use polars::prelude::*;
 use polars::series::Series;
 use std::collections::HashSet;
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug)]
 pub struct Rule {
     dimension: String,
     cutoff: f64,
@@ -32,36 +32,45 @@ impl DTreeBuilder {
         &self,
         data: & DataFrame,
         level: usize,
-        features: HashSet<&str>,
+        features: & HashSet<&str>,
         target: &str,
     ) -> PolarsResult<btree::Node<Decision>> {
-        let mut prediction = predict_majority_dataframe(data, target)?;
+        let prediction = predict_majority_dataframe(data, target)?;
+        let confidence = prediction.confidence;
         let mut node = btree::Node::new(prediction);
         // check stop conditions
-        if (prediction.confidence < 1.0) && // all elements belong to one category
+        if (!features.is_empty()) && // exhausted features
+            (confidence < 1.0) && // all elements belong to one category
             (data.shape().0 > self.min_size) && // size is below minimum threshold
             (level <= self.max_level){ // maximum depth reached
                 let rule = evaluate_best_split(data, features, target)?;
-                let higher = data
+                let higher: DataFrame = data
                     .clone()
                     .lazy()
                     .filter(col(& rule.dimension).gt(rule.cutoff))
-                    .collect();
-                let lower = data
+                    .collect()?;
+                let lower: DataFrame = data
                     .clone()
                     .lazy()
                     .filter(col(& rule.dimension).gt_eq(rule.cutoff))
-                    .collect();
-                prediction.rule = Some(rule);
-                node.left = self.build_node(higher, level + 1, features, target).into();
-                node.right = self.build_node(lower, level + 1, features, target).into();
+                    .collect()?;
+                let mut reduced_features =
+                    features.clone();
+                reduced_features.remove(rule.dimension.as_str());
+                node.value.rule = Some(rule);
+                node.left = self
+                    .build_node(& higher, level + 1, & reduced_features, target)?
+                    .into();
+                node.right = self
+                    .build_node(& lower, level + 1, & reduced_features, target)?
+                    .into();
             }
         Ok(node)
     }
     pub fn build(
         &self,
         data: & DataFrame,
-        features: HashSet<&str>,
+        features: & HashSet<&str>,
         target: &str,
     ) -> PolarsResult<btree::Tree<Decision>> {
         let root = self.build_node(data, 1, features, target)?;
@@ -126,7 +135,7 @@ pub fn predict_majority_dataframe<'a>(data: &'a DataFrame, target: &str) -> Pola
             prediction: string_cat
                 .get(0)
                 .unwrap()
-                .to_owned(),
+                .to_string(),
             confidence: probability
                 .get(0)
                 .unwrap()
@@ -179,11 +188,12 @@ pub fn evaluate_metric(data: &DataFrame, feature: &str, target: &str) -> PolarsR
     )?);
 }
 
-pub fn evaluate_best_split(
-    data: &DataFrame,
-    features: Vec<&str>,
-    target: &str,
+pub fn evaluate_best_split<'a>(
+    data: & DataFrame,
+    features: & HashSet <&str>,
+    target: & str,
 ) -> PolarsResult<Rule> {
+
     // iteratively evaluate the metric on all features
     let metrics: PolarsResult<Vec<LazyFrame>> = features
         .iter()
@@ -231,7 +241,10 @@ pub fn evaluate_best_split(
 
     let split_metric: f64 = best_split.column("metric")?.f64()?.get(0).unwrap();
     Ok(Rule {
-        dimension: chosen_features.get(0).unwrap().to_string(),
+        dimension: chosen_features
+            .get(0)
+            .unwrap()
+            .to_string(),
         cutoff: chosen_split_point,
         metric: split_metric,
     })
