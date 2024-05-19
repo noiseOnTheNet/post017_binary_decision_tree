@@ -1,13 +1,14 @@
 use decision::{evaluate_metric, predict_majority_dataframe, evaluate_best_split};
 use polars::prelude::*;
+use std::collections::HashSet;
 
 fn main() -> polars::prelude::PolarsResult<()> {
-    let features = vec!["sepal_length", "sepal_width", "petal_length", "petal_width"];
+    let features = HashSet::from(["sepal_length", "sepal_width", "petal_length", "petal_width"]);
     let target = "variety";
 
     let data = load_data("iris.csv", target)?;
 
-    let rule = evaluate_best_split(& data, features, target)?;
+    let rule = evaluate_best_split(& data, & features, target)?;
 
     println!(
         "\nrule\n{1:->0$}{2:?}{1:-<0$}\n",
