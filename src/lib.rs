@@ -21,6 +21,7 @@ pub struct Decision {
     prediction: String,
 }
 
+#[derive(Debug)]
 pub struct DTreeBuilder<'a>{
     max_level: usize,
     min_size: usize,
@@ -35,8 +36,8 @@ impl <'a>DTreeBuilder<'a> {
         DTreeBuilder{
             max_level: 3,
             min_size: 1,
-            features: features,
-            target: target,
+            features,
+            target,
             reuse_features: false
         }
     }
@@ -111,6 +112,7 @@ impl <'a>DTreeBuilder<'a> {
         }else{
             None
         };
+        println!("{1:->0$}{2:?}{1:-<0$}", 20, "\n", self);
         let root = self.build_node(data, 1, & current_features)?;
         Ok(btree::Tree::from_node(root))
     }
@@ -161,10 +163,10 @@ pub fn predict_majority_dataframe<'a>(data: &'a DataFrame, target: &str) -> Pola
 
     let probability: Vec<f64>= result_cat
         .column("counts")?
-        .f64()?
+        .u32()?
     .iter()
     .flatten()
-    .map(|c| c/total)
+    .map(|c| (c as f64)/total)
         .collect();
     // return the most common category as a string
     return Ok(
@@ -269,15 +271,15 @@ pub fn evaluate_best_split<'a>(
 
     let chosen_features: Vec<String> = best_split
         .column("feature")?
-        .categorical()?
-        .iter_str()
+        .str()?
+        .iter()
         .flatten()
         .map(|name| <&str as Into<String>>::into(name))
         .collect();
 
     let chosen_split_point: f64 = best_split.column("split")?.f64()?.get(0).unwrap();
 
-    let split_metric: f64 = best_split.column("metric")?.f64()?.get(0).unwrap();
+    let split_metric: f64 = best_split.column("metrics")?.f64()?.get(0).unwrap();
     Ok(Rule {
         dimension: chosen_features
             .get(0)
@@ -286,6 +288,15 @@ pub fn evaluate_best_split<'a>(
         cutoff: chosen_split_point,
         metric: split_metric,
     })
+}
+
+pub fn print_tree(tree: & btree::Tree<Decision>){
+    for (level, node) in tree.breadth_iter(){
+        for _ in 0..level{
+            print!(" | ");
+        }
+        println!("{:?}",node);
+    }
 }
 
 #[cfg(test)]
