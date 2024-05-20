@@ -1,4 +1,4 @@
-use decision::{evaluate_metric, predict_majority_dataframe, evaluate_best_split};
+use decision::{evaluate_best_split, DTreeBuilder};
 use polars::prelude::*;
 use std::collections::HashSet;
 
@@ -14,6 +14,12 @@ fn main() -> polars::prelude::PolarsResult<()> {
         "\nrule\n{1:->0$}{2:?}{1:-<0$}\n",
         20, "\n", rule
     );
+
+    let builder = DTreeBuilder::new(features, target);
+
+    let tree = builder.build(& data);
+
+    println!("{:?}",tree);
     Ok(())
 }
 

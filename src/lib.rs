@@ -21,29 +21,57 @@ pub struct Decision {
     prediction: String,
 }
 
-pub struct DTreeBuilder {
+pub struct DTreeBuilder<'a>{
     max_level: usize,
     min_size: usize,
+    features: HashSet<& 'a str>,
+    target: & 'a str,
+    reuse_features: bool
 }
 
 // uses a struct to define trees constraints
-impl DTreeBuilder {
+impl <'a>DTreeBuilder<'a> {
+    pub fn new(features: HashSet<& 'a str>, target : & 'a str) -> DTreeBuilder<'a>{
+        DTreeBuilder{
+            max_level: 3,
+            min_size: 1,
+            features: features,
+            target: target,
+            reuse_features: false
+        }
+    }
+
+    pub fn set_max_level(mut self, max_level: usize) -> DTreeBuilder<'a>{
+        self.max_level = max_level;
+        self
+    }
+
+    pub fn set_min_size(mut self, min_size: usize) -> DTreeBuilder<'a>{
+        self.min_size = min_size;
+        self
+    }
+
+    pub fn set_reuse_features(mut self, reuse_features : bool) -> DTreeBuilder<'a>{
+        self.reuse_features = reuse_features;
+        self
+    }
+
     fn build_node(
         &self,
         data: & DataFrame,
         level: usize,
-        features: & HashSet<&str>,
-        target: &str,
+        features: & Option<HashSet<&str>>,
     ) -> PolarsResult<btree::Node<Decision>> {
-        let prediction = predict_majority_dataframe(data, target)?;
+        let prediction = predict_majority_dataframe(data, self.target)?;
         let confidence = prediction.confidence;
         let mut node = btree::Node::new(prediction);
+        let current_features = features.clone().unwrap_or(self.features.clone());
         // check stop conditions
-        if (!features.is_empty()) && // exhausted features
+        if (!current_features.is_empty()) && // exhausted features
             (confidence < 1.0) && // all elements belong to one category
             (data.shape().0 > self.min_size) && // size is below minimum threshold
             (level <= self.max_level){ // maximum depth reached
-                let rule = evaluate_best_split(data, features, target)?;
+                let rule = evaluate_best_split(data, & current_features, self.target)?;
                 let higher: DataFrame = data
                     .clone()
                     .lazy()
@@ -54,15 +82,21 @@ impl DTreeBuilder {
                     .lazy()
                     .filter(col(& rule.dimension).gt_eq(rule.cutoff))
                     .collect()?;
-                let mut reduced_features =
-                    features.clone();
-                reduced_features.remove(rule.dimension.as_str());
+                let next_features = match features {
+                    None => None,
+                    Some(feats) => {
+                    let mut reduced_features =
+                        feats.clone();
+                        reduced_features.remove(rule.dimension.as_str());
+                        Some(reduced_features)
+                    }
+                };
                 node.value.rule = Some(rule);
                 node.left = self
-                    .build_node(& higher, level + 1, & reduced_features, target)?
+                    .build_node(& higher, level + 1, & next_features)?
                     .into();
                 node.right = self
-                    .build_node(& lower, level + 1, & reduced_features, target)?
+                    .build_node(& lower, level + 1, & next_features)?
                     .into();
             }
         Ok(node)
@@ -70,10 +104,14 @@ impl DTreeBuilder {
     pub fn build(
         &self,
         data: & DataFrame,
-        features: & HashSet<&str>,
-        target: &str,
     ) -> PolarsResult<btree::Tree<Decision>> {
-        let root = self.build_node(data, 1, features, target)?;
+        let current_features = if self.reuse_features {
+            let feats = self.features.clone();
+            Some(feats)
+        }else{
+            None
+        };
+        let root = self.build_node(data, 1, & current_features)?;
         Ok(btree::Tree::from_node(root))
     }
 }
