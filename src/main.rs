@@ -17,9 +17,9 @@ fn main() -> polars::prelude::PolarsResult<()> {
 
     let builder = DTreeBuilder::new(features, target);
 
-    let tree = builder.build(& data);
+    let tree = builder.build(& data)?;
 
-    println!("{:?}",tree);
+    decision::print_tree(& tree);
     Ok(())
 }
 
