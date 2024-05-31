@@ -1,4 +1,6 @@
-use std::fmt::Debug;
+use std::fmt;
+use std::fmt::{Debug, Display};
+use std::mem::take;
 
 #[derive(Debug)]
 pub struct Node<T> {
@@ -145,7 +147,19 @@ impl<'a, T> Iterator for DepthTraversalIter<'a, T> {
 }
 
 pub struct BreadthTraversalIter<'a, T>{
-    stack: Vec<(usize, & 'a Node<T>)>
+    stack: Vec<TreeStackItem<'a, T>>
+}
+
+pub struct TreeItem<'a, T>{
+    pub id: usize,
+    pub level: usize,
+    pub value: & 'a T
+}
+
+struct TreeStackItem<'a, T>{
+    id: usize,
+    level: usize,
+    node: & 'a Node<T>
 }
 
 impl<'a, T> BreadthTraversalIter<'a, T>{
@@ -153,29 +167,150 @@ impl<'a, T> BreadthTraversalIter<'a, T>{
         match tree.root {
             None => BreadthTraversalIter { stack: Vec::new() },
             Some(ref node) => BreadthTraversalIter {
-                stack: vec![(0, &node)],
+                stack: vec![TreeStackItem{id: 1, level: 1, node: &node}],
             },
         }
     }
 }
 
 impl<'a, T> Iterator for BreadthTraversalIter<'a, T>{
-    type Item = (usize, & 'a T);
+    type Item = TreeItem<'a, T>;
     fn next(&mut self) -> Option<Self::Item> {
-        if let Some((level, node)) = self.stack.pop() {
-            if let Some(ref left) = node.left{
-                self.stack.push((level + 1, & left));
+        if let Some(item) = self.stack.pop() {
+            if let Some(ref left) = item.node.left{
+                self.stack.push(TreeStackItem{id: item.id << 1, level: item.level + 1, node: & left});
             }
-            if let Some(ref right) = node.right{
-                self.stack.push((level + 1, & right));
+            if let Some(ref right) = item.node.right{
+                self.stack.push(TreeStackItem{id: (item.id << 1) + 1, level: item.level + 1, node: & right});
             }
-            Some((level, & node.value))
+            Some(TreeItem{id: item.id, level: item.level, value: & item.node.value})
         }else{
             None
         }
     }
 }
 
+
+struct DotNode{
+    name: String,
+    label: String,
+    shape: String
+}
+
+impl Display for DotNode{
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f,"{} [label=\"{}\", shape=\"{}\"];",self.name, self.label, self.shape)
+    }
+}
+
+struct DotEdge{
+    first: String,
+    second: String
+}
+
+impl Display for DotEdge{
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f,"{} -> {}",self.first,self.second)
+    }
+}
+
+struct DotRank(Vec<String>);
+
+impl Display for DotRank{
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f,"{{rank = same; {};}}",self.0.join("; "))
+    }
+}
+
+struct Dot{
+    nodes: Vec<DotNode>,
+    edges: Vec<DotEdge>,
+    ranks: Vec<DotRank>
+}
+
+impl Dot{
+    fn new() -> Self{
+        Dot{
+            nodes: Vec::new(),
+            edges: Vec::new(),
+            ranks: Vec::new(),
+        }
+    }
+
+    fn add_node(& mut self, name: String, label: String, shape: String) -> () {
+        let node = DotNode{name, label, shape};
+        self.nodes.push(node);
+    }
+
+    fn add_edge(& mut self, first: String, second: String) -> () {
+        let node = DotEdge{first, second};
+        self.edges.push(node);
+    }
+}
+
+impl Display for Dot{
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let mut graph: Vec<String>=vec!["digraph {".into(),"rankdir = BT;".into(),"subgraph{".into()];
+        for node in &self.nodes{
+            graph.push(node.to_string());
+        }
+        for edge in &self.edges{
+            graph.push(edge.to_string());
+        }
+        for rank in &self.ranks{
+            graph.push(rank.to_string());
+        }
+        graph.push("}".into());
+        graph.push("}".into());
+        write!(f,"{}",graph.join("\n"))
+    }
+}
+
+impl<T: Display> Tree<T>{
+    pub fn dot_dump(&self) -> String{
+        let mut graph =  Dot::new();
+        let mut ranks: Vec<DotRank>= Vec::new();
+        let shape: String = "box".into();
+        for item in self.breadth_iter(){
+            let name = format!("node{}",item.id);
+            let parent_name = format!("node{}",item.id >> 1);
+            let label = item.value.to_string();
+            graph.add_node(name.clone(), label, shape.clone());
+            if item.id > 1 {
+                graph.add_edge(parent_name, name.clone());
+            }
+            if ranks.len() < item.level{
+                ranks.push(DotRank(Vec::new()));
+            }
+            let mut bin = ranks.get(item.level - 1).unwrap().0.clone();
+            bin.push(name);
+            let _  = std::mem::replace(& mut ranks[item.level - 1], DotRank(bin));
+        }
+        graph.ranks = ranks;
+        graph.to_string()
+    }
+}
+
+// digraph {
+//    rankdir = BT;
+//    subgraph {
+//         root [label="(4)", shape="box"];
+//         child1 [label="(6)", shape="box"];
+//         child2 [label="(2)", shape="box"];
+//         granchild1 [label="(3)", shape="box"];
+//         granchild2 [label="(1)", shape="box"];
+//         granchild3 [label="(8)", shape="box"];
+//         granchild4 [label="(5)", shape="box"];
+//         root -> child1
+//         root -> child2
+//         child2 -> granchild1
+//         child2 -> granchild2
+//         child1 -> granchild3
+//         child1 -> granchild4
+//         {rank = same; child1; child2;}
+//         {rank = same; granchild1; granchild2; granchild3; granchild4;}
+//    }
+// }
 #[cfg(test)]
 mod tests {
     use super::*;

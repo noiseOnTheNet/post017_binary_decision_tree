@@ -3,6 +3,8 @@ use polars::lazy::dsl::Expr;
 use polars::prelude::*;
 use polars::series::Series;
 use std::collections::HashSet;
+use std::fmt;
+use std::fmt::Display;
 
 #[derive(Debug)]
 pub struct Rule {
@@ -19,6 +21,19 @@ pub struct Decision {
     rule: Option<Rule>,
     confidence: f64,
     prediction: String,
+}
+
+impl Display for Decision{
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self.rule {
+            Some(ref rule) => {
+                write!(f, "{} > {}", rule.dimension, rule.cutoff)
+            }
+            None => {
+                write!(f, "{} {}", self.prediction, self.confidence)
+            }
+        }
+    }
 }
 
 #[derive(Debug)]
@@ -63,7 +78,10 @@ impl <'a>DTreeBuilder<'a> {
         level: usize,
         features: & Option<HashSet<&str>>,
     ) -> PolarsResult<btree::Node<Decision>> {
+        println!("\nentering node level\n{1:->0$}{2:?}{1:-<0$}", 20, "\n", level);
+        println!("\ndata shape\n{1:->0$}{2:?}{1:-<0$}", 20, "\n", data.shape());
         let prediction = predict_majority_dataframe(data, self.target)?;
+        println!("\ndecision\n{1:->0$}{2:?}{1:-<0$}", 20, "\n", &prediction);
         let confidence = prediction.confidence;
         let mut node = btree::Node::new(prediction);
         let current_features = features.clone().unwrap_or(self.features.clone());
@@ -81,7 +99,7 @@ impl <'a>DTreeBuilder<'a> {
                 let lower: DataFrame = data
                     .clone()
                     .lazy()
-                    .filter(col(& rule.dimension).gt_eq(rule.cutoff))
+                    .filter(col(& rule.dimension).lt_eq(rule.cutoff))
                     .collect()?;
                 let next_features = match features {
                     None => None,
@@ -142,11 +160,11 @@ pub fn predict_majority_dataframe<'a>(data: &'a DataFrame, target: &str) -> Pola
 
     // count all categories and sort them
     let result_count = labels.value_counts()?;
-    println!("{1:->0$}{2:?}{1:-<0$}", 20, "\n", result_count);
+    println!("\ncategory count\n{1:->0$}{2:?}{1:-<0$}", 20, "\n", result_count);
 
     // get the most frequent category
     let result_cat = result_count.head(Some(1));
-    println!("{1:->0$}{2:?}{1:-<0$}", 20, "\n", result_cat);
+    println!("\nfirst selected category\n{1:->0$}{2:?}{1:-<0$}", 20, "\n", result_cat);
 
     // transform the series into a categorical vector
     let actual_cat = result_cat
@@ -159,7 +177,7 @@ pub fn predict_majority_dataframe<'a>(data: &'a DataFrame, target: &str) -> Pola
         .flatten()
         .map(|name| (*name).into())
         .collect();
-    println!("{1:->0$}{2:?}{1:-<0$}", 20, "\n", string_cat);
+    println!("\nreturned string\n{1:->0$}{2:?}{1:-<0$}", 20, "\n", string_cat);
 
     let probability: Vec<f64>= result_cat
         .column("counts")?
@@ -291,11 +309,11 @@ pub fn evaluate_best_split<'a>(
 }
 
 pub fn print_tree(tree: & btree::Tree<Decision>){
-    for (level, node) in tree.breadth_iter(){
-        for _ in 0..level{
+    for item in tree.breadth_iter(){
+        for _ in 0..item.level{
             print!(" | ");
         }
-        println!("{:?}",node);
+        println!("{} {:?}",item.id, item.value);
     }
 }
 

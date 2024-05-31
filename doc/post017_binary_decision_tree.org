@@ -8,6 +8,7 @@
 
 
 * Evaluating the effectiveness of the algorithm
+- tuning hyperparameters using cross validation
 
 * Stopping rules
 I'd like to implement three basic stopping rules:
@@ -15,9 +16,62 @@ I'd like to implement three basic stopping rules:
 - the current level is equal to the maximum depth provided by the user
 - the current node contains less elements than the minimum decided by the user
 
-I'm not sure about recycling some feature already splitted or not. In case I
-decide to recycle them when should I do it? Only when others have been splitted?
-Or at every iteration?
+It is reasonable to split multiple time along the same axis for continuous
+features, but I'd like to see the effect of dropping a feature once used so I
+will leave this as a build option
+
+* Dumping the tree to debug it
+#+begin_src dot :file images/post017_tree_result.png :exports results
+digraph {
+rankdir = BT;
+subgraph{
+node1 [label="petal_width > 0.8", shape="box"];
+node3 [label="Setosa 1", shape="box"];
+node2 [label="petal_width > 1.75", shape="box"];
+node5 [label="petal_length > 4.95", shape="box"];
+node11 [label="petal_width > 1.65", shape="box"];
+node23 [label="Versicolor 1", shape="box"];
+node22 [label="Virginica 1", shape="box"];
+node10 [label="petal_width > 1.55", shape="box"];
+node21 [label="Virginica 1", shape="box"];
+node20 [label="sepal_length > 6.95", shape="box"];
+node41 [label="Versicolor 1", shape="box"];
+node40 [label="Virginica 1", shape="box"];
+node4 [label="petal_length > 4.85", shape="box"];
+node9 [label="sepal_length > 5.95", shape="box"];
+node19 [label="Versicolor 1", shape="box"];
+node18 [label="Virginica 1", shape="box"];
+node8 [label="Virginica 1", shape="box"];
+node1 -> node3
+node1 -> node2
+node2 -> node5
+node5 -> node11
+node11 -> node23
+node11 -> node22
+node5 -> node10
+node10 -> node21
+node10 -> node20
+node20 -> node41
+node20 -> node40
+node2 -> node4
+node4 -> node9
+node9 -> node19
+node9 -> node18
+node4 -> node8
+{rank = same; node1;}
+{rank = same; node3; node2;}
+{rank = same; node5; node4;}
+{rank = same; node11; node10; node9; node8;}
+{rank = same; node23; node22; node21; node20; node19; node18;}
+{rank = same; node41; node40;}
+}
+}
+
+#+end_src
+
+#+RESULTS:
+[[file:images/post017_tree_result.png]]
+
 * Iterating over rows to do predictions from a dataframe
 https://stackoverflow.com/questions/72440403/iterate-over-rows-polars-rust
 
@@ -54,10 +108,12 @@ https://stackoverflow.com/questions/72440403/iterate-over-rows-polars-rust
   - depth level
 - how do we predict a list of values?
   - need a specific method
+  - multiple value classes fit well with gini and entropy
 - how do we evaluate overfit?
   - cross validation for depth
 - how do we interface the existing tree structure?
   - composition (for extended methods), generic for embedded tree and
     dereferencing?
+    - composition
   - is it possible to have specific methods with just an implementation?
     - by defining a trait on the content type
