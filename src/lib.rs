@@ -27,7 +27,7 @@ impl Display for Decision{
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self.rule {
             Some(ref rule) => {
-                write!(f, "{} > {}", rule.dimension, rule.cutoff)
+                write!(f, "{} > {:.2e}", rule.dimension, rule.cutoff)
             }
             None => {
                 write!(f, "{} {}", self.prediction, self.confidence)

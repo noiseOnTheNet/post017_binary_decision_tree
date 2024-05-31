@@ -25,39 +25,39 @@ will leave this as a build option
 digraph {
 rankdir = BT;
 subgraph{
-node1 [label="petal_width > 0.8", shape="box"];
+node1 [label="petal_width > 8.00e-1", shape="box"];
 node3 [label="Setosa 1", shape="box"];
-node2 [label="petal_width > 1.75", shape="box"];
-node5 [label="petal_length > 4.95", shape="box"];
-node11 [label="petal_width > 1.65", shape="box"];
+node2 [label="petal_width > 1.75e0", shape="box"];
+node5 [label="petal_length > 4.95e0", shape="box"];
+node11 [label="petal_width > 1.65e0", shape="box"];
 node23 [label="Versicolor 1", shape="box"];
 node22 [label="Virginica 1", shape="box"];
-node10 [label="petal_width > 1.55", shape="box"];
+node10 [label="petal_width > 1.55e0", shape="box"];
 node21 [label="Virginica 1", shape="box"];
-node20 [label="sepal_length > 6.95", shape="box"];
+node20 [label="petal_length > 5.45e0", shape="box"];
 node41 [label="Versicolor 1", shape="box"];
 node40 [label="Virginica 1", shape="box"];
-node4 [label="petal_length > 4.85", shape="box"];
-node9 [label="sepal_length > 5.95", shape="box"];
+node4 [label="petal_length > 4.85e0", shape="box"];
+node9 [label="sepal_length > 5.95e0", shape="box"];
 node19 [label="Versicolor 1", shape="box"];
 node18 [label="Virginica 1", shape="box"];
 node8 [label="Virginica 1", shape="box"];
-node1 -> node3
-node1 -> node2
-node2 -> node5
-node5 -> node11
-node11 -> node23
-node11 -> node22
-node5 -> node10
-node10 -> node21
-node10 -> node20
-node20 -> node41
-node20 -> node40
-node2 -> node4
-node4 -> node9
-node9 -> node19
-node9 -> node18
-node4 -> node8
+node1 -> node3 [label="no"]
+node1 -> node2 [label="yes"]
+node2 -> node5 [label="no"]
+node5 -> node11 [label="no"]
+node11 -> node23 [label="no"]
+node11 -> node22 [label="yes"]
+node5 -> node10 [label="yes"]
+node10 -> node21 [label="no"]
+node10 -> node20 [label="yes"]
+node20 -> node41 [label="no"]
+node20 -> node40 [label="yes"]
+node2 -> node4 [label="yes"]
+node4 -> node9 [label="no"]
+node9 -> node19 [label="no"]
+node9 -> node18 [label="yes"]
+node4 -> node8 [label="yes"]
 {rank = same; node1;}
 {rank = same; node3; node2;}
 {rank = same; node5; node4;}
@@ -66,6 +66,7 @@ node4 -> node8
 {rank = same; node41; node40;}
 }
 }
+
 
 #+end_src
 

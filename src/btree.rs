@@ -205,12 +205,13 @@ impl Display for DotNode{
 
 struct DotEdge{
     first: String,
-    second: String
+    second: String,
+    label: String
 }
 
 impl Display for DotEdge{
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f,"{} -> {}",self.first,self.second)
+        write!(f,"{} -> {} [label=\"{}\"]",self.first,self.second,self.label)
     }
 }
 
@@ -242,8 +243,8 @@ impl Dot{
         self.nodes.push(node);
     }
 
-    fn add_edge(& mut self, first: String, second: String) -> () {
-        let node = DotEdge{first, second};
+    fn add_edge(& mut self, first: String, second: String, label: String) -> () {
+        let node = DotEdge{first, second, label};
         self.edges.push(node);
     }
 }
@@ -277,7 +278,12 @@ impl<T: Display> Tree<T>{
             let label = item.value.to_string();
             graph.add_node(name.clone(), label, shape.clone());
             if item.id > 1 {
-                graph.add_edge(parent_name, name.clone());
+                let edgelabel : String= if item.id % 2 == 0{
+                    "yes".into()
+                }else{
+                    "no".into()
+                };
+                graph.add_edge(parent_name, name.clone(),edgelabel);
             }
             if ranks.len() < item.level{
                 ranks.push(DotRank(Vec::new()));
