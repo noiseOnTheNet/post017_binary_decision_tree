@@ -17,7 +17,7 @@ fn main() -> polars::prelude::PolarsResult<()> {
         20, "\n", rule
     );
 
-    let builder = DTreeBuilder::new(features, target)
+    let builder = DTreeBuilder::new(features.clone(), target)
         .set_max_level(7);
 
     let tree = builder.build(& data)?;
@@ -26,6 +26,29 @@ fn main() -> polars::prelude::PolarsResult<()> {
 
     let dump = & tree.dot_dump("yes","no");
     fs::write("./iris1.dot", dump).expect("Unable to write file iris1.dot");
+    println!("{}",dump);
+
+    let builder = DTreeBuilder::new(features.clone(), target)
+        .set_reuse_features(false)
+        .set_max_level(7);
+
+    let tree = builder.build(& data)?;
+
+    decision::print_tree(& tree);
+
+    let dump = & tree.dot_dump("yes","no");
+    fs::write("./iris2.dot", dump).expect("Unable to write file iris1.dot");
+    println!("{}",dump);
+
+    let builder = DTreeBuilder::new(features.clone(), target)
+        .set_max_level(3);
+
+    let tree = builder.build(& data)?;
+
+    decision::print_tree(& tree);
+
+    let dump = & tree.dot_dump("yes","no");
+    fs::write("./iris3.dot", dump).expect("Unable to write file iris3.dot");
     println!("{}",dump);
     Ok(())
 }

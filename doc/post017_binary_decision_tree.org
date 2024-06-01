@@ -9,7 +9,16 @@
 
 * Evaluating the effectiveness of the algorithm
 - tuning hyperparameters using cross validation
+* Basic data structure
+the main tree node contains the classification of the current dataset according
+to the majority; in case of even count of two or more classes the result is random.
 
+With the predicted class a confidence is calculated which is the frequency of
+the class in the current dataset
+
+Optionally a further split may be added which contains the chosen feature and a
+floating point number representing the threshold separating the left sub-branch
+from the right.
 * Stopping rules
 I'd like to implement three basic stopping rules:
 - the current node contains one class only
@@ -20,6 +29,12 @@ It is reasonable to split multiple time along the same axis for continuous
 features, but I'd like to see the effect of dropping a feature once used so I
 will leave this as a build option
 
+* Building the tree
+To create the tree the builder pattern is used which allow to define some options
+
+Until a stopping condition is met for each node iteratively all features are
+evaluated to find the most effective split according to our current metrics
+(Gini impurity index) than
 * Dumping the tree to debug it
 #+begin_src dot :file images/post017_tree_result.png :exports results
 digraph {

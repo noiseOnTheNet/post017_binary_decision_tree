@@ -27,10 +27,10 @@ impl Display for Decision{
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self.rule {
             Some(ref rule) => {
-                write!(f, "{} > {:.2e}", rule.dimension, rule.cutoff)
+                write!(f, "{} > {:.2}", rule.dimension, rule.cutoff)
             }
             None => {
-                write!(f, "{} {}", self.prediction, self.confidence)
+                write!(f, "{} {:.2}", self.prediction, self.confidence)
             }
         }
     }
@@ -53,7 +53,7 @@ impl <'a>DTreeBuilder<'a> {
             min_size: 1,
             features,
             target,
-            reuse_features: false
+            reuse_features: true
         }
     }
 
@@ -104,9 +104,14 @@ impl <'a>DTreeBuilder<'a> {
                 let next_features = match features {
                     None => None,
                     Some(feats) => {
-                    let mut reduced_features =
-                        feats.clone();
+                        let mut reduced_features =
+                            feats.clone();
                         reduced_features.remove(rule.dimension.as_str());
+                        let feats_vec: Vec<String> = reduced_features
+                            .iter()
+                            .map(|s| s.to_string())
+                            .collect();
+                        print!("features {}",feats_vec.join(","));
                         Some(reduced_features)
                     }
                 };
@@ -124,7 +129,7 @@ impl <'a>DTreeBuilder<'a> {
         &self,
         data: & DataFrame,
     ) -> PolarsResult<btree::Tree<Decision>> {
-        let current_features = if self.reuse_features {
+        let current_features = if !self.reuse_features {
             let feats = self.features.clone();
             Some(feats)
         }else{
