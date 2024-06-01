@@ -1,3 +1,4 @@
+use std::fs;
 use decision::{evaluate_best_split, DTreeBuilder};
 use polars::prelude::*;
 use std::collections::HashSet;
@@ -23,7 +24,9 @@ fn main() -> polars::prelude::PolarsResult<()> {
 
     decision::print_tree(& tree);
 
-    println!("{}",& tree.dot_dump());
+    let dump = & tree.dot_dump("yes","no");
+    fs::write("./iris1.dot", dump).expect("Unable to write file iris1.dot");
+    println!("{}",dump);
     Ok(())
 }
 

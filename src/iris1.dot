@@ -1,0 +1,44 @@
+digraph {
+rankdir = BT;
+subgraph{
+node1 [label="petal_width > 8.00e-1", shape="box"];
+node3 [label="Setosa 1", shape="box", style="rounded,filled", fillcolor="green"];
+node2 [label="petal_width > 1.75e0", shape="box"];
+node5 [label="petal_length > 4.95e0", shape="box"];
+node11 [label="petal_width > 1.65e0", shape="box"];
+node23 [label="Versicolor 1", shape="box", style="rounded,filled", fillcolor="green"];
+node22 [label="Virginica 1", shape="box", style="rounded,filled", fillcolor="green"];
+node10 [label="petal_width > 1.55e0", shape="box"];
+node21 [label="Virginica 1", shape="box", style="rounded,filled", fillcolor="green"];
+node20 [label="sepal_length > 6.95e0", shape="box"];
+node41 [label="Versicolor 1", shape="box", style="rounded,filled", fillcolor="green"];
+node40 [label="Virginica 1", shape="box", style="rounded,filled", fillcolor="green"];
+node4 [label="petal_length > 4.85e0", shape="box"];
+node9 [label="sepal_width > 3.10e0", shape="box"];
+node19 [label="Virginica 1", shape="box", style="rounded,filled", fillcolor="green"];
+node18 [label="Versicolor 1", shape="box", style="rounded,filled", fillcolor="green"];
+node8 [label="Virginica 1", shape="box", style="rounded,filled", fillcolor="green"];
+node1 -> node3 [label="no"]
+node1 -> node2 [label="yes"]
+node2 -> node5 [label="no"]
+node5 -> node11 [label="no"]
+node11 -> node23 [label="no"]
+node11 -> node22 [label="yes"]
+node5 -> node10 [label="yes"]
+node10 -> node21 [label="no"]
+node10 -> node20 [label="yes"]
+node20 -> node41 [label="no"]
+node20 -> node40 [label="yes"]
+node2 -> node4 [label="yes"]
+node4 -> node9 [label="no"]
+node9 -> node19 [label="no"]
+node9 -> node18 [label="yes"]
+node4 -> node8 [label="yes"]
+{rank = same; node1;}
+{rank = same; node3; node2;}
+{rank = same; node5; node4;}
+{rank = same; node11; node10; node9; node8;}
+{rank = same; node23; node22; node21; node20; node19; node18;}
+{rank = same; node41; node40;}
+}
+}

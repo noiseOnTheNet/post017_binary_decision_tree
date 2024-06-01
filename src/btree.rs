@@ -153,7 +153,8 @@ pub struct BreadthTraversalIter<'a, T>{
 pub struct TreeItem<'a, T>{
     pub id: usize,
     pub level: usize,
-    pub value: & 'a T
+    pub value: & 'a T,
+    pub leaf: bool
 }
 
 struct TreeStackItem<'a, T>{
@@ -177,13 +178,16 @@ impl<'a, T> Iterator for BreadthTraversalIter<'a, T>{
     type Item = TreeItem<'a, T>;
     fn next(&mut self) -> Option<Self::Item> {
         if let Some(item) = self.stack.pop() {
+            let mut leaf: bool = true;
             if let Some(ref left) = item.node.left{
                 self.stack.push(TreeStackItem{id: item.id << 1, level: item.level + 1, node: & left});
+                leaf = false;
             }
             if let Some(ref right) = item.node.right{
                 self.stack.push(TreeStackItem{id: (item.id << 1) + 1, level: item.level + 1, node: & right});
+                leaf = false;
             }
-            Some(TreeItem{id: item.id, level: item.level, value: & item.node.value})
+            Some(TreeItem{id: item.id, level: item.level, value: & item.node.value, leaf})
         }else{
             None
         }
@@ -194,12 +198,22 @@ impl<'a, T> Iterator for BreadthTraversalIter<'a, T>{
 struct DotNode{
     name: String,
     label: String,
-    shape: String
+    shape: String,
+    style: Option<String>,
+    fillcolor: Option<String>
 }
 
 impl Display for DotNode{
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f,"{} [label=\"{}\", shape=\"{}\"];",self.name, self.label, self.shape)
+        let style: String = match self.style {
+            None => "".into(),
+            Some(ref kind) => format!(", style=\"{}\"",kind)
+        };
+        let fillcolor: String = match self.fillcolor {
+            None => "".into(),
+            Some(ref kind) => format!(", fillcolor=\"{}\"",kind)
+        };
+        write!(f,"{} [label=\"{}\", shape=\"{}\"{}{}];",self.name, self.label, self.shape, style, fillcolor)
     }
 }
 
@@ -238,8 +252,8 @@ impl Dot{
         }
     }
 
-    fn add_node(& mut self, name: String, label: String, shape: String) -> () {
-        let node = DotNode{name, label, shape};
+    fn add_node(& mut self, name: String, label: String, shape: String, style: Option<String>, fillcolor: Option<String>) -> () {
+        let node = DotNode{name, label, shape, style, fillcolor};
         self.nodes.push(node);
     }
 
@@ -268,20 +282,29 @@ impl Display for Dot{
 }
 
 impl<T: Display> Tree<T>{
-    pub fn dot_dump(&self) -> String{
+    pub fn dot_dump(&self, left: &str, right: &str) -> String{
         let mut graph =  Dot::new();
         let mut ranks: Vec<DotRank>= Vec::new();
-        let shape: String = "box".into();
+        let shape = "box";
+        let leaf_style = "rounded,filled";
+        let leaf_color = "green";
+        let leaf_shape = "box";
         for item in self.breadth_iter(){
             let name = format!("node{}",item.id);
             let parent_name = format!("node{}",item.id >> 1);
             let label = item.value.to_string();
-            graph.add_node(name.clone(), label, shape.clone());
+            graph.add_node(
+                name.clone(),
+                label,
+                if item.leaf {leaf_shape.to_owned()} else {shape.to_owned()},
+                if item.leaf {Some(leaf_style.to_owned())} else {None},
+                if item.leaf {Some(leaf_color.to_owned())} else {None},
+            );
             if item.id > 1 {
                 let edgelabel : String= if item.id % 2 == 0{
-                    "yes".into()
+                    left.to_owned()
                 }else{
-                    "no".into()
+                    right.to_owned()
                 };
                 graph.add_edge(parent_name, name.clone(),edgelabel);
             }

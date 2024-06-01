@@ -25,23 +25,23 @@ will leave this as a build option
 digraph {
 rankdir = BT;
 subgraph{
-node1 [label="petal_width > 8.00e-1", shape="box"];
-node3 [label="Setosa 1", shape="box"];
+node1 [label="petal_length > 2.45e0", shape="box"];
+node3 [label="Setosa 1", shape="box", style="rounded,filled", fillcolor="green"];
 node2 [label="petal_width > 1.75e0", shape="box"];
 node5 [label="petal_length > 4.95e0", shape="box"];
 node11 [label="petal_width > 1.65e0", shape="box"];
-node23 [label="Versicolor 1", shape="box"];
-node22 [label="Virginica 1", shape="box"];
+node23 [label="Versicolor 1", shape="box", style="rounded,filled", fillcolor="green"];
+node22 [label="Virginica 1", shape="box", style="rounded,filled", fillcolor="green"];
 node10 [label="petal_width > 1.55e0", shape="box"];
-node21 [label="Virginica 1", shape="box"];
-node20 [label="petal_length > 5.45e0", shape="box"];
-node41 [label="Versicolor 1", shape="box"];
-node40 [label="Virginica 1", shape="box"];
+node21 [label="Virginica 1", shape="box", style="rounded,filled", fillcolor="green"];
+node20 [label="sepal_length > 6.95e0", shape="box"];
+node41 [label="Versicolor 1", shape="box", style="rounded,filled", fillcolor="green"];
+node40 [label="Virginica 1", shape="box", style="rounded,filled", fillcolor="green"];
 node4 [label="petal_length > 4.85e0", shape="box"];
 node9 [label="sepal_length > 5.95e0", shape="box"];
-node19 [label="Versicolor 1", shape="box"];
-node18 [label="Virginica 1", shape="box"];
-node8 [label="Virginica 1", shape="box"];
+node19 [label="Versicolor 1", shape="box", style="rounded,filled", fillcolor="green"];
+node18 [label="Virginica 1", shape="box", style="rounded,filled", fillcolor="green"];
+node8 [label="Virginica 1", shape="box", style="rounded,filled", fillcolor="green"];
 node1 -> node3 [label="no"]
 node1 -> node2 [label="yes"]
 node2 -> node5 [label="no"]
@@ -66,7 +66,6 @@ node4 -> node8 [label="yes"]
 {rank = same; node41; node40;}
 }
 }
-
 
 #+end_src
 
