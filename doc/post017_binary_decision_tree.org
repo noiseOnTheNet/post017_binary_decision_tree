@@ -30,12 +30,16 @@ features, but I'd like to see the effect of dropping a feature once used so I
 will leave this as a build option
 
 * Building the tree
+** Builder pattern in Rust
 To create the tree the builder pattern is used which allow to define some options
 
+** Iterative node building
 Until a stopping condition is met for each node iteratively all features are
 evaluated to find the most effective split according to our current metrics
 (Gini impurity index) than
 * Dumping the tree to debug it
+** Pre-order depth first traversal
+** creating a Dot DSL reification
 #+begin_src dot :file images/post017_tree_result.png :exports results
 digraph {
 rankdir = BT;

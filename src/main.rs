@@ -2,7 +2,6 @@ use std::fs;
 use decision::{evaluate_best_split, DTreeBuilder};
 use polars::prelude::*;
 use std::collections::HashSet;
-mod btree;
 
 fn main() -> polars::prelude::PolarsResult<()> {
     let features = HashSet::from(["sepal_length", "sepal_width", "petal_length", "petal_width"]);

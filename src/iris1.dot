@@ -14,9 +14,9 @@ node20 [label="sepal_length > 6.95", shape="box"];
 node41 [label="Versicolor 1.00", shape="box", style="rounded,filled", fillcolor="green"];
 node40 [label="Virginica 1.00", shape="box", style="rounded,filled", fillcolor="green"];
 node4 [label="petal_length > 4.85", shape="box"];
-node9 [label="sepal_length > 5.95", shape="box"];
-node19 [label="Versicolor 1.00", shape="box", style="rounded,filled", fillcolor="green"];
-node18 [label="Virginica 1.00", shape="box", style="rounded,filled", fillcolor="green"];
+node9 [label="sepal_width > 3.10", shape="box"];
+node19 [label="Virginica 1.00", shape="box", style="rounded,filled", fillcolor="green"];
+node18 [label="Versicolor 1.00", shape="box", style="rounded,filled", fillcolor="green"];
 node8 [label="Virginica 1.00", shape="box", style="rounded,filled", fillcolor="green"];
 node1 -> node3 [label="no"]
 node1 -> node2 [label="yes"]
