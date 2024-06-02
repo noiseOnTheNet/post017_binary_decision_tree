@@ -1,4 +1,4 @@
-mod btree;
+pub mod btree;
 use polars::lazy::dsl::Expr;
 use polars::prelude::*;
 use polars::series::Series;
@@ -314,7 +314,7 @@ pub fn evaluate_best_split<'a>(
 }
 
 pub fn print_tree(tree: & btree::Tree<Decision>){
-    for item in tree.breadth_iter(){
+    for item in tree.pre_order_iter(){
         for _ in 0..item.level{
             print!(" | ");
         }

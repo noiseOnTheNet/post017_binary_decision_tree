@@ -1,0 +1,18 @@
+digraph {
+rankdir = BT;
+subgraph{
+node1 [label="8", shape="box"];
+node3 [label="10", shape="box", style="rounded,filled", fillcolor="green"];
+node2 [label="4", shape="box"];
+node5 [label="6", shape="box"];
+node10 [label="5", shape="box", style="rounded,filled", fillcolor="green"];
+node1 -> node3 [label="<"]
+node1 -> node2 [label=">"]
+node2 -> node5 [label="<"]
+node5 -> node10 [label=">"]
+{rank = same; node1;}
+{rank = same; node3; node2;}
+{rank = same; node5;}
+{rank = same; node10;}
+}
+}

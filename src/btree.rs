@@ -1,6 +1,4 @@
-use std::fmt;
 use std::fmt::{Debug, Display};
-use std::mem::take;
 mod dot;
 
 #[derive(Debug)]
@@ -42,17 +40,17 @@ impl<T> Tree<T> {
         }
     }
 
-    pub fn depth_iter<'a>(& 'a self) -> DepthTraversalIter<'a, T>{
-        DepthTraversalIter::new(self)
+    pub fn post_order_iter<'a>(& 'a self) -> PostOrderTraversalIter<'a, T>{
+        PostOrderTraversalIter::new(self)
     }
 
-    pub fn breadth_iter<'a>(& 'a self) -> BreadthTraversalIter<'a, T>{
-        BreadthTraversalIter::new(self)
+    pub fn pre_order_iter<'a>(& 'a self) -> PreOrderTraversalIter<'a, T>{
+        PreOrderTraversalIter::new(self)
     }
 }
 
 impl<T: Ord> Tree<T> {
-    fn insert(&mut self, value: T) {
+    pub fn insert(&mut self, value: T) {
         match self.root {
             None => {
                 self.root = Node::new(value).into();
@@ -94,15 +92,15 @@ enum Address {
     Completed,
 }
 
-pub struct DepthTraversalIter<'a, T> {
+pub struct PostOrderTraversalIter<'a, T> {
     stack: Vec<(Address, &'a Node<T>)>,
 }
 
-impl<'a, T> DepthTraversalIter<'a, T> {
-    fn new(tree: &'a Tree<T>) -> DepthTraversalIter<'a, T> {
+impl<'a, T> PostOrderTraversalIter<'a, T> {
+    fn new(tree: &'a Tree<T>) -> PostOrderTraversalIter<'a, T> {
         match tree.root {
-            None => DepthTraversalIter { stack: Vec::new() },
-            Some(ref node) => DepthTraversalIter {
+            None => PostOrderTraversalIter { stack: Vec::new() },
+            Some(ref node) => PostOrderTraversalIter {
                 stack: vec![(Address::Enter, &node)],
             },
         }
@@ -140,14 +138,14 @@ impl<'a, T> DepthTraversalIter<'a, T> {
 }
 
 
-impl<'a, T> Iterator for DepthTraversalIter<'a, T> {
+impl<'a, T> Iterator for PostOrderTraversalIter<'a, T> {
     type Item = & 'a T;
     fn next(&mut self) -> Option<Self::Item> {
         self.next_item()
     }
 }
 
-pub struct BreadthTraversalIter<'a, T>{
+pub struct PreOrderTraversalIter<'a, T>{
     stack: Vec<TreeStackItem<'a, T>>
 }
 
@@ -164,18 +162,18 @@ struct TreeStackItem<'a, T>{
     node: & 'a Node<T>
 }
 
-impl<'a, T> BreadthTraversalIter<'a, T>{
-    fn new(tree: & 'a Tree<T>) -> BreadthTraversalIter<'a, T>{
+impl<'a, T> PreOrderTraversalIter<'a, T>{
+    fn new(tree: & 'a Tree<T>) -> PreOrderTraversalIter<'a, T>{
         match tree.root {
-            None => BreadthTraversalIter { stack: Vec::new() },
-            Some(ref node) => BreadthTraversalIter {
+            None => PreOrderTraversalIter { stack: Vec::new() },
+            Some(ref node) => PreOrderTraversalIter {
                 stack: vec![TreeStackItem{id: 1, level: 1, node: &node}],
             },
         }
     }
 }
 
-impl<'a, T> Iterator for BreadthTraversalIter<'a, T>{
+impl<'a, T> Iterator for PreOrderTraversalIter<'a, T>{
     type Item = TreeItem<'a, T>;
     fn next(&mut self) -> Option<Self::Item> {
         if let Some(item) = self.stack.pop() {
@@ -204,7 +202,7 @@ impl<T: Display> Tree<T>{
         let leaf_style = "rounded,filled";
         let leaf_color = "green";
         let leaf_shape = "box";
-        for item in self.breadth_iter(){
+        for item in self.pre_order_iter(){
             let name = format!("node{}",item.id);
             let parent_name = format!("node{}",item.id >> 1);
             let label = item.value.to_string();
@@ -234,7 +232,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn create_a_root_node() {
+    fn post_order() {
         let mut tree: Tree<i64> = Tree::new();
         tree.insert(8);
         tree.insert(10);
@@ -242,7 +240,20 @@ mod tests {
         tree.insert(6);
         tree.insert(5);
         println!("{:?}", tree);
-        let result: Vec<i64> = tree.depth_iter().map(|x| (*x).clone()).collect();
+        let result: Vec<i64> = tree.post_order_iter().map(|x| (*x).clone()).collect();
         assert_eq!(result, vec![4, 5, 6, 8, 10]);
+    }
+
+    #[test]
+    fn pre_order() {
+        let mut tree: Tree<i64> = Tree::new();
+        tree.insert(8);
+        tree.insert(10);
+        tree.insert(4);
+        tree.insert(6);
+        tree.insert(5);
+        println!("{:?}", tree);
+        let result: Vec<i64> = tree.pre_order_iter().map(|x| (*(x.value)).clone()).collect();
+        assert_eq!(result, vec![8, 10, 4, 6, 5]);
     }
 }
