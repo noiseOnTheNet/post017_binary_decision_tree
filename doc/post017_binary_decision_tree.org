@@ -1,6 +1,6 @@
 #+ORG2BLOG:
 #+DATE: [2024-05-12 dom 22:45]
-#+OPTIONS: toc:nil num:nil todo:nil pri:nil tags:nil ^:nil
+#+OPTIONS: toc:t num:nil todo:nil pri:nil tags:nil ^:nil
 #+CATEGORY: Machine learning
 #+TAGS: Rust
 #+DESCRIPTION: Completing the creation of a classification decision tree in Rust
@@ -475,8 +475,206 @@ impl<'a, T> Iterator for PreOrderTraversalIter<'a, T>{
 
 #+end_src
 ** creating a Dot DSL reification
+This is an example of the chart of a sorting tree:
+
+#+begin_src dot :file images/post017_example_tree.png :exports results
+digraph {
+rankdir = BT;
+subgraph{
+node1 [label="6", shape="box"];
+node3 [label="9", shape="box"];
+node6 [label="8", shape="box"];
+node12 [label="7", shape="box", style="rounded,filled", fillcolor="green"];
+node2 [label="1", shape="box"];
+node5 [label="2", shape="box"];
+node11 [label="5", shape="box"];
+node22 [label="4", shape="box"];
+node44 [label="3", shape="box", style="rounded,filled", fillcolor="green"];
+node4 [label="0", shape="box", style="rounded,filled", fillcolor="green"];
+node1 -> node3 [label=">"]
+node3 -> node6 [label="<"]
+node6 -> node12 [label="<"]
+node1 -> node2 [label="<"]
+node2 -> node5 [label=">"]
+node5 -> node11 [label=">"]
+node11 -> node22 [label="<"]
+node22 -> node44 [label="<"]
+node2 -> node4 [label="<"]
+{rank = same; node1;}
+{rank = same; node3; node2;}
+{rank = same; node6; node5; node4;}
+{rank = same; node12; node11;}
+{rank = same; node22;}
+{rank = same; node44;}
+}
+}
+#+end_src
+
+#+RESULTS:
+[[file:images/post017_example_tree.png]]
+
 I chose graphviz TODO ADD LINK to automatically generate a chart of my tree
-graph, I used a subset of its graph language dot
+graph, I used a subset of its graph language dot.
+
+In these cases the best way for me to create a language generator is to choose
+which parts of its grammar to transform into data object; i chose:
+- nodes
+- edges
+- ranks to put nodes at the same level in the same row
+
+A rank is actually a list of node names, i.e. strings, thus a vector of strings
+should be enough, but we need a specialized representation so I used a wrapper type
+
+#+begin_src rust
+struct DotNode{
+    name: String,
+    label: String,
+    shape: String,
+    style: Option<String>,
+    fillcolor: Option<String>
+}
+
+struct DotEdge{
+    first: String,
+    second: String,
+    label: String
+}
+
+// wrapper type
+#[derive(Default)]
+struct DotRank(Vec<String>);
+
+impl DotRank{
+    fn new() -> DotRank{
+        DotRank(
+            Vec::new()
+        )
+    }
+}
+#+end_src
+
+Per each one I created its text representation following dot grammar
+
+#+begin_src rust
+
+impl Display for DotNode{
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let style: String = match self.style {
+            None => "".into(),
+            Some(ref kind) => format!(", style=\"{}\"",kind)
+        };
+        let fillcolor: String = match self.fillcolor {
+            None => "".into(),
+            Some(ref kind) => format!(", fillcolor=\"{}\"",kind)
+        };
+        write!(f,"{} [label=\"{}\", shape=\"{}\"{}{}];",self.name, self.label, self.shape, style, fillcolor)
+    }
+}
+
+
+impl Display for DotEdge{
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f,"{} -> {} [label=\"{}\"]",self.first,self.second,self.label)
+    }
+}
+
+impl Display for DotRank{
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f,"{{rank = same; {};}}",self.0.join("; "))
+    }
+}
+
+#+end_src
+
+Finally I created a full object which contains all of these elements:
+
+#+begin_src rust
+pub struct Dot{
+    nodes: Vec<DotNode>,
+    edges: Vec<DotEdge>,
+    ranks: Vec<DotRank>
+}
+#+end_src
+
+To simplify the building I created a method to add each kind of element
+
+#+begin_src rust
+impl Dot{
+    pub fn new() -> Self{
+        Dot{
+            nodes: Vec::new(),
+            edges: Vec::new(),
+            ranks: Vec::new(),
+        }
+    }
+
+    pub fn add_node(
+        & mut self,
+        name: String,
+        label: String,
+        shape: String,
+        style: Option<String>,
+        fillcolor: Option<String>
+    ) -> () {
+        let node = DotNode{
+            name,
+            label,
+            shape,
+            style,
+            fillcolor
+        };
+        self.nodes.push(node);
+    }
+
+    pub fn add_edge(
+        & mut self,
+        first: String,
+        second: String,
+        label: String
+    ) -> () {
+        let node = DotEdge{first, second, label};
+        self.edges.push(node);
+    }
+
+    pub fn append_rank(
+        & mut self,
+        index: usize,
+        node: String
+    ) -> (){
+        //ensure space
+        while self.ranks.len() <= index {
+            self.ranks.push(DotRank::new())
+        }
+        // update the rank at index adding the node
+        let mut bin = take(& mut self.ranks[index]);
+        bin.0.push(node);
+        let _ = replace(& mut self.ranks[index], bin);
+    }
+}
+
+#+end_src
+
+finally its transformation into a string
+
+#+begin_src rust
+impl Display for Dot{
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let mut graph: Vec<String>=vec!["digraph {".into(),"rankdir = BT;".into(),"subgraph{".into()];
+        for node in &self.nodes{
+            graph.push(node.to_string());
+        }
+        for edge in &self.edges{
+            graph.push(edge.to_string());
+        }
+        for rank in &self.ranks{
+            graph.push(rank.to_string());
+        }
+        graph.push("}".into());
+        graph.push("}".into());
+        write!(f,"{}",graph.join("\n"))
+    }
+}
+#+end_src
 #+begin_src dot :file images/post017_tree_result.png :exports results
 digraph {
 rankdir = BT;
