@@ -3,12 +3,13 @@
 #+OPTIONS: toc:nil num:nil todo:nil pri:nil tags:nil ^:nil
 #+CATEGORY: Machine learning
 #+TAGS: Rust
-#+DESCRIPTION: Starting a decision tree in Rust
-#+TITLE: Hello, Buffer
+#+DESCRIPTION: Completing the creation of a classification decision tree in Rust
+#+TITLE: Growing a (Decision) Tree
+
+In the last post we saw how to evaluate a Gini inpurity index across all features
 
 
-* Evaluating the effectiveness of the algorithm
-- tuning hyperparameters using cross validation
+
 * Basic data structure
 the main tree node contains the classification of the current dataset according
 to the majority; in case of even count of two or more classes the result is random.
@@ -19,7 +20,152 @@ the class in the current dataset
 Optionally a further split may be added which contains the chosen feature and a
 floating point number representing the threshold separating the left sub-branch
 from the right.
+
+#+begin_src rust
+
+#[derive(Debug)]
+pub struct Rule {
+    dimension: String,
+    cutoff: f64,
+    metric: f64,
+}
+
+#[derive(Debug)]
+pub struct Decision {
+    rule: Option<Rule>,
+    confidence: f64,
+    prediction: String,
+}
+#+end_src
+
+* Predicting class at a given node
+In the training stage, at each node we have an associated subset of the original
+training set.
+
+The predicted category will be the most populated; we can associate a confidence
+with this prediction by estimating the probability of finding a sample in the
+predicted class
+
+#+begin_src rust
+pub fn predict_majority_dataframe<'a>(
+    data: &'a DataFrame, target: &str
+) -> PolarsResult<Decision> {
+    // extract the categorical target column
+    let labels = data.column(target)?.categorical()?;
+
+    let total = labels.len() as f64;
+
+    // count all categories and sort them
+    let result_count = labels.value_counts()?;
+
+    // get the most frequent category
+    let result_cat = result_count.head(Some(1));
+
+    // transform the series into a categorical vector
+    let actual_cat = result_cat
+        .column(target)?
+        .categorical()?;
+
+    // collect all categories as strings
+    let string_cat: Vec<String> = actual_cat
+        .iter_str()
+        .flatten()
+        .map(|name| (*name).into())
+        .collect();
+
+    let probability: Vec<f64>= result_cat
+        .column("counts")?
+        .u32()?
+    .iter()
+    .flatten()
+    .map(|c| (c as f64)/total)
+        .collect();
+    // return the most common category as a string
+    return Ok(
+        Decision{
+            rule: None,
+            prediction: string_cat
+                .get(0)
+                .unwrap()
+                .to_string(),
+            confidence: probability
+                .get(0)
+                .unwrap()
+                .to_owned()
+        }
+    );
+}
+#+end_src
+* Evaluating the best split point
+The best feature and its split point is found by choosing the value that
+optimize the metric:
+- per each feature
+  - metric is evaluated in all split points
+- all result are joined
+- select the best pair of feature and split point according to the metric
+#+begin_src rust
+
+pub fn evaluate_best_split<'a>(
+    data: & DataFrame,
+    features: & HashSet <&str>,
+    target: & str,
+) -> PolarsResult<Rule> {
+
+    // iteratively evaluate the metric on all features
+    let metrics: PolarsResult<Vec<LazyFrame>> = features
+        .iter()
+        .map(|feature| {
+            Ok(evaluate_metric(&data, feature, target)?
+                .lazy()
+                .with_column(feature.lit().alias("feature")))
+        })
+        .collect();
+
+    // join all results in a single dataframe
+    let concat_rules = UnionArgs {
+        parallel: true,
+        rechunk: true,
+        to_supertypes: true,
+    };
+    let concat_metrics: DataFrame = concat(metrics?, concat_rules)?.collect()?;
+
+    // search for the best split
+    let expr: Expr = col("metrics").lt_eq(col("metrics").min());
+    let best_split: DataFrame = concat_metrics
+        .clone()
+        .lazy()
+        .filter(expr)
+        .select([col("feature"), col("split"), col("metrics")])
+        .collect()?;
+
+    let chosen_features: Vec<String> = best_split
+        .column("feature")?
+        .str()?
+        .iter()
+        .flatten()
+        .map(|name| <&str as Into<String>>::into(name))
+        .collect();
+
+    let chosen_split_point: f64 = best_split.column("split")?.f64()?.get(0).unwrap();
+
+    let split_metric: f64 = best_split.column("metrics")?.f64()?.get(0).unwrap();
+    Ok(Rule {
+        dimension: chosen_features
+            .get(0)
+            .unwrap()
+            .to_string(),
+        cutoff: chosen_split_point,
+        metric: split_metric,
+    })
+}
+#+end_src
 * Stopping rules
+We are going to create a tree using a greedy algorithm, i.e. one node at a time,
+recursively; while this does not guarantees to have the best possible result, it
+makes this problem treatable.
+
+Until when should this iteration go?
+
 I'd like to implement three basic stopping rules:
 - the current node contains one class only
 - the current level is equal to the maximum depth provided by the user
@@ -28,16 +174,159 @@ I'd like to implement three basic stopping rules:
 It is reasonable to split multiple time along the same axis for continuous
 features, but I'd like to see the effect of dropping a feature once used so I
 will leave this as a build option
+#+begin_src rust
+        if (!current_features.is_empty()) && // exhausted features
+            (confidence < 1.0) && // all elements belong to one category
+            (data.shape().0 > self.min_size) && // size is below minimum threshold
+            (level <= self.max_level){ // maximum depth reached
+#+end_src
+* Builder pattern in Rust
+Rust does not have optional parameter with default values; to emulate this
+functionality the "builder" pattern is used.
 
-* Building the tree
-** Builder pattern in Rust
-To create the tree the builder pattern is used which allow to define some options
+This pattern consist in the following:
+- create a default constructor for your structure which require only mandatory inputs
+- add a method per each optional field which receives the actual structure (so
+  takes ownership) and returns it mutated
+  - this allows to create chains of calls and make sure that there are no other
+    parts of the code which may access the same structure while we are setting
+    it up
 
-** Iterative node building
+In our case we may want to store all the relevant tree creation options: the following are mandatory:
+- the names of the features
+- the name of the target column
+
+The following are optional:
+- the maximum depth of the tree (we may set the default to 3)
+- if we want to reuse all features after each split (usually true)
+- the minimum size of a dataframe: only larger dataframes will be splitted
+#+begin_src rust
+
+#[derive(Debug)]
+pub struct DTreeBuilder<'a>{
+    max_level: usize,
+    min_size: usize,
+    features: HashSet<& 'a str>,
+    target: & 'a str,
+    reuse_features: bool
+}
+
+// uses a struct to define trees constraints
+impl <'a>DTreeBuilder<'a> {
+    pub fn new(features: HashSet<& 'a str>, target : & 'a str) -> DTreeBuilder<'a>{
+        DTreeBuilder{
+            max_level: 3,
+            min_size: 1,
+            features,
+            target,
+            reuse_features: true
+        }
+    }
+
+    pub fn set_max_level(mut self, max_level: usize) -> DTreeBuilder<'a>{
+        self.max_level = max_level;
+        self
+    }
+
+    pub fn set_min_size(mut self, min_size: usize) -> DTreeBuilder<'a>{
+        self.min_size = min_size;
+        self
+    }
+
+    pub fn set_reuse_features(mut self, reuse_features : bool) -> DTreeBuilder<'a>{
+        self.reuse_features = reuse_features;
+        self
+    }
+}
+#+end_src
+* Iterative node building
+
+There is a public access point which receives only the original training dataset
+
+#+begin_src rust
+impl <'a>DTreeBuilder<'a> {
+    // ...
+    pub fn build(
+        &self,
+        data: & DataFrame,
+    ) -> PolarsResult<btree::Tree<Decision>> {
+        let current_features = if !self.reuse_features {
+            let feats = self.features.clone();
+            Some(feats)
+        }else{
+            None
+        };
+        println!("{1:->0$}{2:?}{1:-<0$}", 20, "\n", self);
+        let root = self.build_node(data, 1, & current_features)?;
+        Ok(btree::Tree::from_node(root))
+    }
+    // ...
+}
+#+end_src
+
 Until a stopping condition is met for each node iteratively all features are
 evaluated to find the most effective split according to our current metrics
 (Gini impurity index) than
-* Dumping the tree to debug it
+
+#+begin_src rust
+impl <'a>DTreeBuilder<'a> {
+    // ...
+    fn build_node(
+        &self,
+        data: & DataFrame,
+        level: usize, // tree depth
+        features: & Option<HashSet<&str>>, // optionally used to remove features
+    ) -> PolarsResult<btree::Node<Decision>> {
+        let prediction = predict_majority_dataframe(data, self.target)?;
+        let confidence = prediction.confidence;
+        let mut node = btree::Node::new(prediction);
+        let current_features = features.clone().unwrap_or(self.features.clone());
+        // check stop conditions
+        if (!current_features.is_empty()) && // exhausted features
+            (confidence < 1.0) && // all elements belong to one category
+            (data.shape().0 > self.min_size) && // size is below minimum threshold
+            (level <= self.max_level){ // maximum depth reached
+                let rule = evaluate_best_split(data, & current_features, self.target)?;
+                let higher: DataFrame = data
+                    .clone()
+                    .lazy()
+                    .filter(col(& rule.dimension).gt(rule.cutoff))
+                    .collect()?;
+                let lower: DataFrame = data
+                    .clone()
+                    .lazy()
+                    .filter(col(& rule.dimension).lt_eq(rule.cutoff))
+                    .collect()?;
+                // remove features only if requested by the user
+                let next_features = match features {
+                    None => None,
+                    Some(feats) => {
+                        let mut reduced_features =
+                            feats.clone();
+                        reduced_features.remove(rule.dimension.as_str());
+                        let feats_vec: Vec<String> = reduced_features
+                            .iter()
+                            .map(|s| s.to_string())
+                            .collect();
+                        Some(reduced_features)
+                    }
+                };
+                node.value.rule = Some(rule);
+                // creates leaves
+                node.left = self
+                    .build_node(& higher, level + 1, & next_features)?
+                    .into();
+                node.right = self
+                    .build_node(& lower, level + 1, & next_features)?
+                    .into();
+            }
+        Ok(node)
+    }
+    // ...
+}
+#+end_src
+
+* Dumping the tree
 ** Pre-order depth first traversal
 ** creating a Dot DSL reification
 #+begin_src dot :file images/post017_tree_result.png :exports results
@@ -136,3 +425,6 @@ https://stackoverflow.com/questions/72440403/iterate-over-rows-polars-rust
     - composition
   - is it possible to have specific methods with just an implementation?
     - by defining a trait on the content type
+
+** Evaluating the effectiveness of the algorithm
+- tuning hyperparameters using cross validation
