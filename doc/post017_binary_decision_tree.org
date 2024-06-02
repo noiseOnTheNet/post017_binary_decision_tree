@@ -1,5 +1,7 @@
+#+BLOG: noise on the net
+#+POSTID: 487
 #+ORG2BLOG:
-#+DATE: [2024-05-12 dom 22:45]
+#+DATE: [2024-06-03 lun 22:45]
 #+OPTIONS: toc:t num:nil todo:nil pri:nil tags:nil ^:nil
 #+CATEGORY: Machine learning
 #+TAGS: Rust
@@ -774,3 +776,7 @@ https://stackoverflow.com/questions/72440403/iterate-over-rows-polars-rust
 
 ** Evaluating the effectiveness of the algorithm
 - tuning hyperparameters using cross validation
+
+# images/post017_full_tree_result.png https://noiseonthenet.space/noise/wp-content/uploads/2024/06/post017_full_tree_result.png
+# images/post017_example_tree.png https://noiseonthenet.space/noise/wp-content/uploads/2024/06/post017_example_tree.png
+# images/post017_tree_result.png https://noiseonthenet.space/noise/wp-content/uploads/2024/06/post017_tree_result.png
