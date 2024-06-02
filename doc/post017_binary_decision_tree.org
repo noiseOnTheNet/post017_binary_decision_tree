@@ -6,11 +6,68 @@
 #+DESCRIPTION: Completing the creation of a classification decision tree in Rust
 #+TITLE: Growing a (Decision) Tree
 
-In the last post we saw how to evaluate a Gini inpurity index across all features
+#+begin_src dot :file images/post017_full_tree_result.png :exports results
+digraph {
+rankdir = BT;
+subgraph{
+node1 [label="petal_length > 2.45\ngini: 3.33e-1", shape="box" style="filled", fillcolor="#fce283"];
+node3 [label="Setosa 1.00", shape="box", style="rounded,filled", fillcolor="#95fc83"];
+node2 [label="petal_width > 1.75\ngini: 1.10e-1", shape="box" style="filled", fillcolor="#fce283"];
+node5 [label="petal_length > 4.95\ngini: 8.56e-2", shape="box" style="filled", fillcolor="#fce283"];
+node11 [label="petal_width > 1.65\ngini: 0.00e0", shape="box" style="filled", fillcolor="#fce283"];
+node23 [label="Versicolor 1.00", shape="box", style="rounded,filled", fillcolor="#95fc83"];
+node22 [label="Virginica 1.00", shape="box", style="rounded,filled", fillcolor="#95fc83"];
+node10 [label="petal_width > 1.55\ngini: 2.22e-1", shape="box" style="filled", fillcolor="#fce283"];
+node21 [label="Virginica 1.00", shape="box", style="rounded,filled", fillcolor="#95fc83"];
+node20 [label="petal_length > 5.45\ngini: 0.00e0", shape="box" style="filled", fillcolor="#fce283"];
+node41 [label="Versicolor 1.00", shape="box", style="rounded,filled", fillcolor="#95fc83"];
+node40 [label="Virginica 1.00", shape="box", style="rounded,filled", fillcolor="#95fc83"];
+node4 [label="petal_length > 4.85\ngini: 2.90e-2", shape="box" style="filled", fillcolor="#fce283"];
+node9 [label="sepal_width > 3.10\ngini: 0.00e0", shape="box" style="filled", fillcolor="#fce283"];
+node19 [label="Virginica 1.00", shape="box", style="rounded,filled", fillcolor="#95fc83"];
+node18 [label="Versicolor 1.00", shape="box", style="rounded,filled", fillcolor="#95fc83"];
+node8 [label="Virginica 1.00", shape="box", style="rounded,filled", fillcolor="#95fc83"];
+node1 -> node3 [label="no"]
+node1 -> node2 [label="yes"]
+node2 -> node5 [label="no"]
+node5 -> node11 [label="no"]
+node11 -> node23 [label="no"]
+node11 -> node22 [label="yes"]
+node5 -> node10 [label="yes"]
+node10 -> node21 [label="no"]
+node10 -> node20 [label="yes"]
+node20 -> node41 [label="no"]
+node20 -> node40 [label="yes"]
+node2 -> node4 [label="yes"]
+node4 -> node9 [label="no"]
+node9 -> node19 [label="no"]
+node9 -> node18 [label="yes"]
+node4 -> node8 [label="yes"]
+{rank = same; node1;}
+{rank = same; node3; node2;}
+{rank = same; node5; node4;}
+{rank = same; node11; node10; node9; node8;}
+{rank = same; node23; node22; node21; node20; node19; node18;}
+{rank = same; node41; node40;}
+}
+}
+#+end_src
 
+#+RESULTS:
+[[file:images/post017_full_tree_result.png]]
+
+In this post I will complete the creation of the decision tree by iteratively
+building it with Gini metric; I will show a pre-order depth first traversal
+which will be used to create tree charts using graphviz dot language
+
+In the last post we saw how to evaluate a Gini inpurity index across
+all features
+TODO ADD LINK
 
 
 * Basic data structure
+Here I will describe what will be the content of each node in the decision tree.
+
 the main tree node contains the classification of the current dataset according
 to the majority; in case of even count of two or more classes the result is random.
 
@@ -19,7 +76,7 @@ the class in the current dataset
 
 Optionally a further split may be added which contains the chosen feature and a
 floating point number representing the threshold separating the left sub-branch
-from the right.
+from the right, here we can save the metric used to evaluate the split.
 
 #+begin_src rust
 
@@ -39,6 +96,9 @@ pub struct Decision {
 #+end_src
 
 * Predicting class at a given node
+Here I will describe how each tree node will predict a class from the training
+dataset
+
 In the training stage, at each node we have an associated subset of the original
 training set.
 
@@ -328,7 +388,95 @@ impl <'a>DTreeBuilder<'a> {
 
 * Dumping the tree
 ** Pre-order depth first traversal
+in a previoust post TODO ADD LINK I show how to create a depth first traversal
+algorithm.
+
+To be more specific it was a post-order traversal: you can find more details
+about the kind of traversal algorithms [[https://en.wikipedia.org/wiki/Tree_traversal][in this Wikipedia page]].
+
+To draw our tree we now need a pre-order traversal iterator: TODO ADD NAME
+suggested me in a comment how to use a stack to implement this kind of
+traversal: my code follows
+
+I added some more useful information to the iterator result
+- the current node depth
+- its number according to the binary position described TODO ADD LINK
+- a boolean describing if the current node is a leaf
+
+#+begin_src rust
+pub struct PreOrderTraversalIter<'a, T>{
+    stack: Vec<TreeStackItem<'a, T>>
+}
+
+pub struct TreeItem<'a, T>{
+    pub id: usize,
+    pub level: usize,
+    pub value: & 'a T,
+    pub leaf: bool
+}
+
+struct TreeStackItem<'a, T>{
+    id: usize,
+    level: usize,
+    node: & 'a Node<T>
+}
+
+impl<'a, T> PreOrderTraversalIter<'a, T>{
+    fn new(tree: & 'a Tree<T>) -> PreOrderTraversalIter<'a, T>{
+        match tree.root {
+            None => PreOrderTraversalIter { stack: Vec::new() },
+            Some(ref node) => PreOrderTraversalIter {
+                stack: vec![
+                    TreeStackItem{
+                        id: 1,
+                        level: 1,
+                        node: &node
+                    }],
+            },
+        }
+    }
+}
+
+impl<'a, T> Iterator for PreOrderTraversalIter<'a, T>{
+    type Item = TreeItem<'a, T>;
+    fn next(&mut self) -> Option<Self::Item> {
+        if let Some(item) = self.stack.pop() {
+            let mut leaf: bool = true;
+            if let Some(ref left) = item.node.left{
+                self.stack.push(
+                    TreeStackItem{
+                        id: item.id << 1,
+                        level: item.level + 1,
+                        node: & left
+                    });
+                leaf = false;
+            }
+            if let Some(ref right) = item.node.right{
+                self.stack.push(
+                    TreeStackItem{
+                        id: (item.id << 1) + 1,
+                        level: item.level + 1,
+                        node: & right
+                    });
+                leaf = false;
+            }
+            Some(
+                TreeItem{
+                    id: item.id,
+                    level: item.level,
+                    value: & item.node.value,
+                    leaf
+                })
+        }else{
+            None
+        }
+    }
+}
+
+#+end_src
 ** creating a Dot DSL reification
+I chose graphviz TODO ADD LINK to automatically generate a chart of my tree
+graph, I used a subset of its graph language dot
 #+begin_src dot :file images/post017_tree_result.png :exports results
 digraph {
 rankdir = BT;
