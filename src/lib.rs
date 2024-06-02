@@ -13,9 +13,6 @@ pub struct Rule {
     metric: f64,
 }
 
-// categorical types are mapped to u32 because:
-// 1. do not are equivalent to rust enums which are actually sum types
-// 2. we target also 64bit execution platforms like webasm
 #[derive(Debug)]
 pub struct Decision {
     rule: Option<Rule>,
@@ -27,7 +24,7 @@ impl Display for Decision{
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self.rule {
             Some(ref rule) => {
-                write!(f, "{} > {:.2}", rule.dimension, rule.cutoff)
+                write!(f, "{} > {:.2}\\ngini: {:.2e}", rule.dimension, rule.cutoff, rule.metric)
             }
             None => {
                 write!(f, "{} {:.2}", self.prediction, self.confidence)

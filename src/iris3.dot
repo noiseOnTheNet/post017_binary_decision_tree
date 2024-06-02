@@ -1,13 +1,13 @@
 digraph {
 rankdir = BT;
 subgraph{
-node1 [label="petal_length > 2.45", shape="box"];
+node1 [label="petal_length > 2.45\ngini: 3.33e-1", shape="box"];
 node3 [label="Setosa 1.00", shape="box", style="rounded,filled", fillcolor="green"];
-node2 [label="petal_width > 1.75", shape="box"];
-node5 [label="petal_length > 4.95", shape="box"];
+node2 [label="petal_width > 1.75\ngini: 1.10e-1", shape="box"];
+node5 [label="petal_length > 4.95\ngini: 8.56e-2", shape="box"];
 node11 [label="Versicolor 0.98", shape="box", style="rounded,filled", fillcolor="green"];
 node10 [label="Virginica 0.67", shape="box", style="rounded,filled", fillcolor="green"];
-node4 [label="petal_length > 4.85", shape="box"];
+node4 [label="petal_length > 4.85\ngini: 2.90e-2", shape="box"];
 node9 [label="Virginica 0.67", shape="box", style="rounded,filled", fillcolor="green"];
 node8 [label="Virginica 1.00", shape="box", style="rounded,filled", fillcolor="green"];
 node1 -> node3 [label="no"]

@@ -1,16 +1,16 @@
 digraph {
 rankdir = BT;
 subgraph{
-node1 [label="petal_length > 2.45", shape="box"];
+node1 [label="petal_length > 2.45\ngini: 3.33e-1", shape="box"];
 node3 [label="Setosa 1.00", shape="box", style="rounded,filled", fillcolor="green"];
-node2 [label="petal_width > 1.75", shape="box"];
-node5 [label="sepal_length > 7.10", shape="box"];
-node11 [label="sepal_width > 2.85", shape="box"];
+node2 [label="petal_width > 1.75\ngini: 1.10e-1", shape="box"];
+node5 [label="sepal_length > 7.10\ngini: 1.37e-1", shape="box"];
+node11 [label="sepal_width > 2.85\ngini: 1.31e-1", shape="box"];
 node23 [label="Versicolor 0.87", shape="box", style="rounded,filled", fillcolor="green"];
 node22 [label="Versicolor 1.00", shape="box", style="rounded,filled", fillcolor="green"];
 node10 [label="Virginica 1.00", shape="box", style="rounded,filled", fillcolor="green"];
-node4 [label="sepal_length > 5.95", shape="box"];
-node9 [label="sepal_width > 3.10", shape="box"];
+node4 [label="sepal_length > 5.95\ngini: 3.73e-2", shape="box"];
+node9 [label="sepal_width > 3.10\ngini: 0.00e0", shape="box"];
 node19 [label="Virginica 1.00", shape="box", style="rounded,filled", fillcolor="green"];
 node18 [label="Versicolor 1.00", shape="box", style="rounded,filled", fillcolor="green"];
 node8 [label="Virginica 1.00", shape="box", style="rounded,filled", fillcolor="green"];
