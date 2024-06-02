@@ -234,26 +234,22 @@ mod tests {
     #[test]
     fn post_order() {
         let mut tree: Tree<i64> = Tree::new();
-        tree.insert(8);
-        tree.insert(10);
-        tree.insert(4);
-        tree.insert(6);
-        tree.insert(5);
+        for num in [6, 1, 0, 2, 5, 4, 9, 8, 3, 7]{
+            tree.insert(num);
+        }
         println!("{:?}", tree);
         let result: Vec<i64> = tree.post_order_iter().map(|x| (*x).clone()).collect();
-        assert_eq!(result, vec![4, 5, 6, 8, 10]);
+        assert_eq!(result, vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
     }
 
     #[test]
     fn pre_order() {
         let mut tree: Tree<i64> = Tree::new();
-        tree.insert(8);
-        tree.insert(10);
-        tree.insert(4);
-        tree.insert(6);
-        tree.insert(5);
+        for num in [6, 1, 0, 2, 5, 4, 9, 8, 3, 7]{
+            tree.insert(num);
+        }
         println!("{:?}", tree);
         let result: Vec<i64> = tree.pre_order_iter().map(|x| (*(x.value)).clone()).collect();
-        assert_eq!(result, vec![8, 10, 4, 6, 5]);
+        assert_eq!(result, vec![6, 9, 8, 7, 1, 2, 5, 4, 3, 0]);
     }
 }

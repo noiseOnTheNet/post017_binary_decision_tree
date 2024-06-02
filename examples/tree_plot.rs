@@ -3,11 +3,9 @@ use decision::btree::Tree;
 
 fn main(){
     let mut tree: Tree<i64> = Tree::new();
-    tree.insert(8);
-    tree.insert(10);
-    tree.insert(4);
-    tree.insert(6);
-    tree.insert(5);
-    let graph = tree.dot_dump(">", "<");
+    for num in [6, 1, 0, 2, 5, 4, 9, 8, 3, 7]{
+        tree.insert(num);
+    }
+    let graph = tree.dot_dump("<", ">");
     fs::write("./example.dot", graph).expect("Unable to write file example.dot");
 }
