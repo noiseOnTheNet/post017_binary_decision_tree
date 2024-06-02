@@ -11,43 +11,43 @@
 <!-- node1 -->
 <g id="node1" class="node">
 <title>node1</title>
-<polygon fill="none" stroke="black" points="265.88,-41 143.38,-41 143.38,0 265.88,0 265.88,-41"/>
-<text text-anchor="middle" x="204.62" y="-23.7" font-family="Times,serif" font-size="14.00">petal_length &gt; 2.45</text>
-<text text-anchor="middle" x="204.62" y="-7.2" font-family="Times,serif" font-size="14.00">gini: 3.33e&#45;1</text>
+<polygon fill="#fce283" stroke="black" points="262.38,-41 142.88,-41 142.88,0 262.38,0 262.38,-41"/>
+<text text-anchor="middle" x="202.62" y="-23.7" font-family="Times,serif" font-size="14.00">petal_width &gt; 0.80</text>
+<text text-anchor="middle" x="202.62" y="-7.2" font-family="Times,serif" font-size="14.00">gini: 3.33e&#45;1</text>
 </g>
 <!-- node3 -->
 <g id="node2" class="node">
 <title>node3</title>
-<path fill="green" stroke="black" d="M214.12,-132C214.12,-132 159.12,-132 159.12,-132 153.12,-132 147.12,-126 147.12,-120 147.12,-120 147.12,-108 147.12,-108 147.12,-102 153.12,-96 159.12,-96 159.12,-96 214.12,-96 214.12,-96 220.12,-96 226.12,-102 226.12,-108 226.12,-108 226.12,-120 226.12,-120 226.12,-126 220.12,-132 214.12,-132"/>
-<text text-anchor="middle" x="186.62" y="-108.95" font-family="Times,serif" font-size="14.00">Setosa 1.00</text>
+<path fill="#95fc83" stroke="black" d="M212.12,-132C212.12,-132 157.12,-132 157.12,-132 151.12,-132 145.12,-126 145.12,-120 145.12,-120 145.12,-108 145.12,-108 145.12,-102 151.12,-96 157.12,-96 157.12,-96 212.12,-96 212.12,-96 218.12,-96 224.12,-102 224.12,-108 224.12,-108 224.12,-120 224.12,-120 224.12,-126 218.12,-132 212.12,-132"/>
+<text text-anchor="middle" x="184.62" y="-108.95" font-family="Times,serif" font-size="14.00">Setosa 1.00</text>
 </g>
 <!-- node1&#45;&gt;node3 -->
 <g id="edge1" class="edge">
 <title>node1&#45;&gt;node3</title>
-<path fill="none" stroke="black" d="M200.72,-41.35C198.23,-54 194.97,-70.59 192.21,-84.61"/>
-<polygon fill="black" stroke="black" points="188.83,-83.68 190.33,-94.17 195.69,-85.03 188.83,-83.68"/>
-<text text-anchor="middle" x="204.38" y="-62.2" font-family="Times,serif" font-size="14.00">no</text>
+<path fill="none" stroke="black" d="M198.72,-41.35C196.23,-54 192.97,-70.59 190.21,-84.61"/>
+<polygon fill="black" stroke="black" points="186.83,-83.68 188.33,-94.17 193.69,-85.03 186.83,-83.68"/>
+<text text-anchor="middle" x="202.38" y="-62.2" font-family="Times,serif" font-size="14.00">no</text>
 </g>
 <!-- node2 -->
 <g id="node3" class="node">
 <title>node2</title>
-<polygon fill="none" stroke="black" points="363.38,-134.5 243.88,-134.5 243.88,-93.5 363.38,-93.5 363.38,-134.5"/>
-<text text-anchor="middle" x="303.62" y="-117.2" font-family="Times,serif" font-size="14.00">petal_width &gt; 1.75</text>
-<text text-anchor="middle" x="303.62" y="-100.7" font-family="Times,serif" font-size="14.00">gini: 1.10e&#45;1</text>
+<polygon fill="#fce283" stroke="black" points="364.88,-134.5 242.38,-134.5 242.38,-93.5 364.88,-93.5 364.88,-134.5"/>
+<text text-anchor="middle" x="303.62" y="-117.2" font-family="Times,serif" font-size="14.00">petal_length &gt; 4.75</text>
+<text text-anchor="middle" x="303.62" y="-100.7" font-family="Times,serif" font-size="14.00">gini: 1.26e&#45;1</text>
 </g>
 <!-- node1&#45;&gt;node2 -->
 <g id="edge2" class="edge">
 <title>node1&#45;&gt;node2</title>
-<path fill="none" stroke="black" d="M226.11,-41.35C240.12,-54.3 258.59,-71.38 273.99,-85.61"/>
-<polygon fill="black" stroke="black" points="271.35,-87.94 281.07,-92.16 276.11,-82.8 271.35,-87.94"/>
-<text text-anchor="middle" x="272.62" y="-62.2" font-family="Times,serif" font-size="14.00">yes</text>
+<path fill="none" stroke="black" d="M224.54,-41.35C238.83,-54.3 257.68,-71.38 273.4,-85.61"/>
+<polygon fill="black" stroke="black" points="270.87,-88.05 280.63,-92.17 275.57,-82.86 270.87,-88.05"/>
+<text text-anchor="middle" x="271.62" y="-62.2" font-family="Times,serif" font-size="14.00">yes</text>
 </g>
 <!-- node5 -->
 <g id="node4" class="node">
 <title>node5</title>
-<polygon fill="none" stroke="black" points="281.62,-228 157.62,-228 157.62,-187 281.62,-187 281.62,-228"/>
-<text text-anchor="middle" x="219.62" y="-210.7" font-family="Times,serif" font-size="14.00">sepal_length &gt; 7.10</text>
-<text text-anchor="middle" x="219.62" y="-194.2" font-family="Times,serif" font-size="14.00">gini: 1.37e&#45;1</text>
+<polygon fill="#fce283" stroke="black" points="281.62,-228 157.62,-228 157.62,-187 281.62,-187 281.62,-228"/>
+<text text-anchor="middle" x="219.62" y="-210.7" font-family="Times,serif" font-size="14.00">sepal_length &gt; 4.95</text>
+<text text-anchor="middle" x="219.62" y="-194.2" font-family="Times,serif" font-size="14.00">gini: 2.22e&#45;2</text>
 </g>
 <!-- node2&#45;&gt;node5 -->
 <g id="edge3" class="edge">
@@ -59,9 +59,9 @@
 <!-- node4 -->
 <g id="node9" class="node">
 <title>node4</title>
-<polygon fill="none" stroke="black" points="423.62,-228 299.62,-228 299.62,-187 423.62,-187 423.62,-228"/>
-<text text-anchor="middle" x="361.62" y="-210.7" font-family="Times,serif" font-size="14.00">sepal_length &gt; 5.95</text>
-<text text-anchor="middle" x="361.62" y="-194.2" font-family="Times,serif" font-size="14.00">gini: 3.73e&#45;2</text>
+<polygon fill="#fce283" stroke="black" points="423.62,-228 299.62,-228 299.62,-187 423.62,-187 423.62,-228"/>
+<text text-anchor="middle" x="361.62" y="-210.7" font-family="Times,serif" font-size="14.00">sepal_length &gt; 7.00</text>
+<text text-anchor="middle" x="361.62" y="-194.2" font-family="Times,serif" font-size="14.00">gini: 1.88e&#45;1</text>
 </g>
 <!-- node2&#45;&gt;node4 -->
 <g id="edge8" class="edge">
@@ -73,62 +73,62 @@
 <!-- node11 -->
 <g id="node5" class="node">
 <title>node11</title>
-<polygon fill="none" stroke="black" points="162.12,-321.5 41.12,-321.5 41.12,-280.5 162.12,-280.5 162.12,-321.5"/>
-<text text-anchor="middle" x="101.62" y="-304.2" font-family="Times,serif" font-size="14.00">sepal_width &gt; 2.85</text>
-<text text-anchor="middle" x="101.62" y="-287.7" font-family="Times,serif" font-size="14.00">gini: 1.31e&#45;1</text>
+<polygon fill="#fce283" stroke="black" points="159.12,-321.5 38.12,-321.5 38.12,-280.5 159.12,-280.5 159.12,-321.5"/>
+<text text-anchor="middle" x="98.62" y="-304.2" font-family="Times,serif" font-size="14.00">sepal_width &gt; 2.45</text>
+<text text-anchor="middle" x="98.62" y="-287.7" font-family="Times,serif" font-size="14.00">gini: 0.00e0</text>
 </g>
 <!-- node5&#45;&gt;node11 -->
 <g id="edge4" class="edge">
 <title>node5&#45;&gt;node11</title>
-<path fill="none" stroke="black" d="M194.02,-228.35C177.09,-241.48 154.69,-258.86 136.18,-273.21"/>
-<polygon fill="black" stroke="black" points="134.13,-270.36 128.38,-279.26 138.42,-275.9 134.13,-270.36"/>
-<text text-anchor="middle" x="178.38" y="-249.2" font-family="Times,serif" font-size="14.00">no</text>
+<path fill="none" stroke="black" d="M193.37,-228.35C175.93,-241.54 152.82,-259.01 133.8,-273.4"/>
+<polygon fill="black" stroke="black" points="131.9,-270.45 126.04,-279.27 136.12,-276.03 131.9,-270.45"/>
+<text text-anchor="middle" x="177.38" y="-249.2" font-family="Times,serif" font-size="14.00">no</text>
 </g>
 <!-- node10 -->
 <g id="node8" class="node">
 <title>node10</title>
-<path fill="green" stroke="black" d="M263,-319C263,-319 192.25,-319 192.25,-319 186.25,-319 180.25,-313 180.25,-307 180.25,-307 180.25,-295 180.25,-295 180.25,-289 186.25,-283 192.25,-283 192.25,-283 263,-283 263,-283 269,-283 275,-289 275,-295 275,-295 275,-307 275,-307 275,-313 269,-319 263,-319"/>
-<text text-anchor="middle" x="227.62" y="-295.95" font-family="Times,serif" font-size="14.00">Virginica 1.00</text>
+<path fill="#95fc83" stroke="black" d="M264.25,-319C264.25,-319 189,-319 189,-319 183,-319 177,-313 177,-307 177,-307 177,-295 177,-295 177,-289 183,-283 189,-283 189,-283 264.25,-283 264.25,-283 270.25,-283 276.25,-289 276.25,-295 276.25,-295 276.25,-307 276.25,-307 276.25,-313 270.25,-319 264.25,-319"/>
+<text text-anchor="middle" x="226.62" y="-295.95" font-family="Times,serif" font-size="14.00">Versicolor 1.00</text>
 </g>
 <!-- node5&#45;&gt;node10 -->
 <g id="edge7" class="edge">
 <title>node5&#45;&gt;node10</title>
-<path fill="none" stroke="black" d="M221.36,-228.35C222.46,-240.87 223.89,-257.25 225.11,-271.19"/>
-<polygon fill="black" stroke="black" points="221.62,-271.49 225.98,-281.14 228.59,-270.88 221.62,-271.49"/>
+<path fill="none" stroke="black" d="M221.14,-228.35C222.1,-240.87 223.35,-257.25 224.42,-271.19"/>
+<polygon fill="black" stroke="black" points="220.93,-271.44 225.18,-281.14 227.91,-270.9 220.93,-271.44"/>
 <text text-anchor="middle" x="233.62" y="-249.2" font-family="Times,serif" font-size="14.00">yes</text>
 </g>
 <!-- node23 -->
 <g id="node6" class="node">
 <title>node23</title>
-<path fill="green" stroke="black" d="M87.25,-410C87.25,-410 12,-410 12,-410 6,-410 0,-404 0,-398 0,-398 0,-386 0,-386 0,-380 6,-374 12,-374 12,-374 87.25,-374 87.25,-374 93.25,-374 99.25,-380 99.25,-386 99.25,-386 99.25,-398 99.25,-398 99.25,-404 93.25,-410 87.25,-410"/>
-<text text-anchor="middle" x="49.62" y="-386.95" font-family="Times,serif" font-size="14.00">Versicolor 0.87</text>
+<path fill="#95fc83" stroke="black" d="M87.25,-410C87.25,-410 12,-410 12,-410 6,-410 0,-404 0,-398 0,-398 0,-386 0,-386 0,-380 6,-374 12,-374 12,-374 87.25,-374 87.25,-374 93.25,-374 99.25,-380 99.25,-386 99.25,-386 99.25,-398 99.25,-398 99.25,-404 93.25,-410 87.25,-410"/>
+<text text-anchor="middle" x="49.62" y="-386.95" font-family="Times,serif" font-size="14.00">Versicolor 1.00</text>
 </g>
 <!-- node11&#45;&gt;node23 -->
 <g id="edge5" class="edge">
 <title>node11&#45;&gt;node23</title>
-<path fill="none" stroke="black" d="M90.08,-321.75C82.84,-334.16 73.39,-350.33 65.45,-363.92"/>
-<polygon fill="black" stroke="black" points="62.51,-362 60.49,-372.4 68.56,-365.53 62.51,-362"/>
-<text text-anchor="middle" x="86.38" y="-342.7" font-family="Times,serif" font-size="14.00">no</text>
+<path fill="none" stroke="black" d="M87.75,-321.75C80.92,-334.16 72.02,-350.33 64.53,-363.92"/>
+<polygon fill="black" stroke="black" points="61.63,-361.93 59.88,-372.38 67.76,-365.31 61.63,-361.93"/>
+<text text-anchor="middle" x="84.38" y="-342.7" font-family="Times,serif" font-size="14.00">no</text>
 </g>
 <!-- node22 -->
 <g id="node7" class="node">
 <title>node22</title>
-<path fill="green" stroke="black" d="M204.25,-410C204.25,-410 129,-410 129,-410 123,-410 117,-404 117,-398 117,-398 117,-386 117,-386 117,-380 123,-374 129,-374 129,-374 204.25,-374 204.25,-374 210.25,-374 216.25,-380 216.25,-386 216.25,-386 216.25,-398 216.25,-398 216.25,-404 210.25,-410 204.25,-410"/>
-<text text-anchor="middle" x="166.62" y="-386.95" font-family="Times,serif" font-size="14.00">Versicolor 1.00</text>
+<path fill="#95fc83" stroke="black" d="M200,-410C200,-410 129.25,-410 129.25,-410 123.25,-410 117.25,-404 117.25,-398 117.25,-398 117.25,-386 117.25,-386 117.25,-380 123.25,-374 129.25,-374 129.25,-374 200,-374 200,-374 206,-374 212,-380 212,-386 212,-386 212,-398 212,-398 212,-404 206,-410 200,-410"/>
+<text text-anchor="middle" x="164.62" y="-386.95" font-family="Times,serif" font-size="14.00">Virginica 1.00</text>
 </g>
 <!-- node11&#45;&gt;node22 -->
 <g id="edge6" class="edge">
 <title>node11&#45;&gt;node22</title>
-<path fill="none" stroke="black" d="M116.05,-321.75C125.29,-334.4 137.38,-350.96 147.43,-364.72"/>
-<polygon fill="black" stroke="black" points="144.38,-366.47 153.1,-372.49 150.03,-362.35 144.38,-366.47"/>
-<text text-anchor="middle" x="149.62" y="-342.7" font-family="Times,serif" font-size="14.00">yes</text>
+<path fill="none" stroke="black" d="M113.27,-321.75C122.65,-334.4 134.93,-350.96 145.13,-364.72"/>
+<polygon fill="black" stroke="black" points="142.13,-366.54 150.9,-372.49 147.75,-362.38 142.13,-366.54"/>
+<text text-anchor="middle" x="146.62" y="-342.7" font-family="Times,serif" font-size="14.00">yes</text>
 </g>
 <!-- node9 -->
 <g id="node10" class="node">
 <title>node9</title>
-<polygon fill="none" stroke="black" points="418.12,-321.5 297.12,-321.5 297.12,-280.5 418.12,-280.5 418.12,-321.5"/>
-<text text-anchor="middle" x="357.62" y="-304.2" font-family="Times,serif" font-size="14.00">sepal_width &gt; 3.10</text>
-<text text-anchor="middle" x="357.62" y="-287.7" font-family="Times,serif" font-size="14.00">gini: 0.00e0</text>
+<polygon fill="#fce283" stroke="black" points="418.12,-321.5 297.12,-321.5 297.12,-280.5 418.12,-280.5 418.12,-321.5"/>
+<text text-anchor="middle" x="357.62" y="-304.2" font-family="Times,serif" font-size="14.00">sepal_width &gt; 3.25</text>
+<text text-anchor="middle" x="357.62" y="-287.7" font-family="Times,serif" font-size="14.00">gini: 2.35e&#45;1</text>
 </g>
 <!-- node4&#45;&gt;node9 -->
 <g id="edge9" class="edge">
@@ -140,7 +140,7 @@
 <!-- node8 -->
 <g id="node13" class="node">
 <title>node8</title>
-<path fill="green" stroke="black" d="M519,-319C519,-319 448.25,-319 448.25,-319 442.25,-319 436.25,-313 436.25,-307 436.25,-307 436.25,-295 436.25,-295 436.25,-289 442.25,-283 448.25,-283 448.25,-283 519,-283 519,-283 525,-283 531,-289 531,-295 531,-295 531,-307 531,-307 531,-313 525,-319 519,-319"/>
+<path fill="#95fc83" stroke="black" d="M519,-319C519,-319 448.25,-319 448.25,-319 442.25,-319 436.25,-313 436.25,-307 436.25,-307 436.25,-295 436.25,-295 436.25,-289 442.25,-283 448.25,-283 448.25,-283 519,-283 519,-283 525,-283 531,-289 531,-295 531,-295 531,-307 531,-307 531,-313 525,-319 519,-319"/>
 <text text-anchor="middle" x="483.62" y="-295.95" font-family="Times,serif" font-size="14.00">Virginica 1.00</text>
 </g>
 <!-- node4&#45;&gt;node8 -->
@@ -153,28 +153,28 @@
 <!-- node19 -->
 <g id="node11" class="node">
 <title>node19</title>
-<path fill="green" stroke="black" d="M330,-410C330,-410 259.25,-410 259.25,-410 253.25,-410 247.25,-404 247.25,-398 247.25,-398 247.25,-386 247.25,-386 247.25,-380 253.25,-374 259.25,-374 259.25,-374 330,-374 330,-374 336,-374 342,-380 342,-386 342,-386 342,-398 342,-398 342,-404 336,-410 330,-410"/>
-<text text-anchor="middle" x="294.62" y="-386.95" font-family="Times,serif" font-size="14.00">Virginica 1.00</text>
+<path fill="#95fc83" stroke="black" d="M329,-410C329,-410 258.25,-410 258.25,-410 252.25,-410 246.25,-404 246.25,-398 246.25,-398 246.25,-386 246.25,-386 246.25,-380 252.25,-374 258.25,-374 258.25,-374 329,-374 329,-374 335,-374 341,-380 341,-386 341,-386 341,-398 341,-398 341,-404 335,-410 329,-410"/>
+<text text-anchor="middle" x="293.62" y="-386.95" font-family="Times,serif" font-size="14.00">Virginica 0.84</text>
 </g>
 <!-- node9&#45;&gt;node19 -->
 <g id="edge10" class="edge">
 <title>node9&#45;&gt;node19</title>
-<path fill="none" stroke="black" d="M343.64,-321.75C334.78,-334.28 323.19,-350.64 313.51,-364.32"/>
-<polygon fill="black" stroke="black" points="310.66,-362.29 307.74,-372.47 316.37,-366.33 310.66,-362.29"/>
-<text text-anchor="middle" x="337.38" y="-342.7" font-family="Times,serif" font-size="14.00">no</text>
+<path fill="none" stroke="black" d="M343.42,-321.75C334.33,-334.4 322.42,-350.96 312.53,-364.72"/>
+<polygon fill="black" stroke="black" points="309.94,-362.32 306.94,-372.48 315.62,-366.4 309.94,-362.32"/>
+<text text-anchor="middle" x="336.38" y="-342.7" font-family="Times,serif" font-size="14.00">no</text>
 </g>
 <!-- node18 -->
 <g id="node12" class="node">
 <title>node18</title>
-<path fill="green" stroke="black" d="M447.25,-410C447.25,-410 372,-410 372,-410 366,-410 360,-404 360,-398 360,-398 360,-386 360,-386 360,-380 366,-374 372,-374 372,-374 447.25,-374 447.25,-374 453.25,-374 459.25,-380 459.25,-386 459.25,-386 459.25,-398 459.25,-398 459.25,-404 453.25,-410 447.25,-410"/>
-<text text-anchor="middle" x="409.62" y="-386.95" font-family="Times,serif" font-size="14.00">Versicolor 1.00</text>
+<path fill="#95fc83" stroke="black" d="M442,-410C442,-410 371.25,-410 371.25,-410 365.25,-410 359.25,-404 359.25,-398 359.25,-398 359.25,-386 359.25,-386 359.25,-380 365.25,-374 371.25,-374 371.25,-374 442,-374 442,-374 448,-374 454,-380 454,-386 454,-386 454,-398 454,-398 454,-404 448,-410 442,-410"/>
+<text text-anchor="middle" x="406.62" y="-386.95" font-family="Times,serif" font-size="14.00">Virginica 1.00</text>
 </g>
 <!-- node9&#45;&gt;node18 -->
 <g id="edge11" class="edge">
 <title>node9&#45;&gt;node18</title>
-<path fill="none" stroke="black" d="M369.17,-321.75C376.41,-334.16 385.86,-350.33 393.8,-363.92"/>
-<polygon fill="black" stroke="black" points="390.69,-365.53 398.76,-372.4 396.74,-362 390.69,-365.53"/>
-<text text-anchor="middle" x="396.62" y="-342.7" font-family="Times,serif" font-size="14.00">yes</text>
+<path fill="none" stroke="black" d="M368.5,-321.75C375.33,-334.16 384.23,-350.33 391.72,-363.92"/>
+<polygon fill="black" stroke="black" points="388.49,-365.31 396.37,-372.38 394.62,-361.93 388.49,-365.31"/>
+<text text-anchor="middle" x="394.62" y="-342.7" font-family="Times,serif" font-size="14.00">yes</text>
 </g>
 </g>
 </svg>

@@ -1,23 +1,23 @@
 digraph {
 rankdir = BT;
 subgraph{
-node1 [label="petal_length > 2.45\ngini: 3.33e-1", shape="box"];
-node3 [label="Setosa 1.00", shape="box", style="rounded,filled", fillcolor="green"];
-node2 [label="petal_width > 1.75\ngini: 1.10e-1", shape="box"];
-node5 [label="petal_length > 4.95\ngini: 8.56e-2", shape="box"];
-node11 [label="petal_width > 1.65\ngini: 0.00e0", shape="box"];
-node23 [label="Versicolor 1.00", shape="box", style="rounded,filled", fillcolor="green"];
-node22 [label="Virginica 1.00", shape="box", style="rounded,filled", fillcolor="green"];
-node10 [label="petal_width > 1.55\ngini: 2.22e-1", shape="box"];
-node21 [label="Virginica 1.00", shape="box", style="rounded,filled", fillcolor="green"];
-node20 [label="petal_length > 5.45\ngini: 0.00e0", shape="box"];
-node41 [label="Versicolor 1.00", shape="box", style="rounded,filled", fillcolor="green"];
-node40 [label="Virginica 1.00", shape="box", style="rounded,filled", fillcolor="green"];
-node4 [label="petal_length > 4.85\ngini: 2.90e-2", shape="box"];
-node9 [label="sepal_width > 3.10\ngini: 0.00e0", shape="box"];
-node19 [label="Virginica 1.00", shape="box", style="rounded,filled", fillcolor="green"];
-node18 [label="Versicolor 1.00", shape="box", style="rounded,filled", fillcolor="green"];
-node8 [label="Virginica 1.00", shape="box", style="rounded,filled", fillcolor="green"];
+node1 [label="petal_width > 0.80\ngini: 3.33e-1", shape="box", style="filled", fillcolor="#fce283"];
+node3 [label="Setosa 1.00", shape="box", style="rounded,filled", fillcolor="#95fc83"];
+node2 [label="petal_width > 1.75\ngini: 1.10e-1", shape="box", style="filled", fillcolor="#fce283"];
+node5 [label="petal_length > 4.95\ngini: 8.56e-2", shape="box", style="filled", fillcolor="#fce283"];
+node11 [label="petal_width > 1.65\ngini: 0.00e0", shape="box", style="filled", fillcolor="#fce283"];
+node23 [label="Versicolor 1.00", shape="box", style="rounded,filled", fillcolor="#95fc83"];
+node22 [label="Virginica 1.00", shape="box", style="rounded,filled", fillcolor="#95fc83"];
+node10 [label="petal_width > 1.55\ngini: 2.22e-1", shape="box", style="filled", fillcolor="#fce283"];
+node21 [label="Virginica 1.00", shape="box", style="rounded,filled", fillcolor="#95fc83"];
+node20 [label="petal_length > 5.45\ngini: 0.00e0", shape="box", style="filled", fillcolor="#fce283"];
+node41 [label="Versicolor 1.00", shape="box", style="rounded,filled", fillcolor="#95fc83"];
+node40 [label="Virginica 1.00", shape="box", style="rounded,filled", fillcolor="#95fc83"];
+node4 [label="petal_length > 4.85\ngini: 2.90e-2", shape="box", style="filled", fillcolor="#fce283"];
+node9 [label="sepal_width > 3.10\ngini: 0.00e0", shape="box", style="filled", fillcolor="#fce283"];
+node19 [label="Virginica 1.00", shape="box", style="rounded,filled", fillcolor="#95fc83"];
+node18 [label="Versicolor 1.00", shape="box", style="rounded,filled", fillcolor="#95fc83"];
+node8 [label="Virginica 1.00", shape="box", style="rounded,filled", fillcolor="#95fc83"];
 node1 -> node3 [label="no"]
 node1 -> node2 [label="yes"]
 node2 -> node5 [label="no"]

@@ -199,8 +199,10 @@ impl<T: Display> Tree<T>{
     pub fn dot_dump(&self, left: &str, right: &str) -> String{
         let mut graph =  dot::Dot::new();
         let shape = "box";
+        let branch_style = "filled";
+        let branch_color = "#fce283";
         let leaf_style = "rounded,filled";
-        let leaf_color = "green";
+        let leaf_color = "#95fc83";
         let leaf_shape = "box";
         for item in self.pre_order_iter(){
             let name = format!("node{}",item.id);
@@ -210,8 +212,8 @@ impl<T: Display> Tree<T>{
                 name.clone(),
                 label,
                 if item.leaf {leaf_shape.to_owned()} else {shape.to_owned()},
-                if item.leaf {Some(leaf_style.to_owned())} else {None},
-                if item.leaf {Some(leaf_color.to_owned())} else {None},
+                if item.leaf {Some(leaf_style.to_owned())} else {Some(branch_style.to_owned())},
+                if item.leaf {Some(leaf_color.to_owned())} else {Some(branch_color.to_owned())},
             );
             if item.id > 1 {
                 let edgelabel : String= if item.id % 2 == 0{

@@ -1,19 +1,19 @@
 digraph {
 rankdir = BT;
 subgraph{
-node1 [label="petal_length > 2.45\ngini: 3.33e-1", shape="box"];
-node3 [label="Setosa 1.00", shape="box", style="rounded,filled", fillcolor="green"];
-node2 [label="petal_width > 1.75\ngini: 1.10e-1", shape="box"];
-node5 [label="sepal_length > 7.10\ngini: 1.37e-1", shape="box"];
-node11 [label="sepal_width > 2.85\ngini: 1.31e-1", shape="box"];
-node23 [label="Versicolor 0.87", shape="box", style="rounded,filled", fillcolor="green"];
-node22 [label="Versicolor 1.00", shape="box", style="rounded,filled", fillcolor="green"];
-node10 [label="Virginica 1.00", shape="box", style="rounded,filled", fillcolor="green"];
-node4 [label="sepal_length > 5.95\ngini: 3.73e-2", shape="box"];
-node9 [label="sepal_width > 3.10\ngini: 0.00e0", shape="box"];
-node19 [label="Virginica 1.00", shape="box", style="rounded,filled", fillcolor="green"];
-node18 [label="Versicolor 1.00", shape="box", style="rounded,filled", fillcolor="green"];
-node8 [label="Virginica 1.00", shape="box", style="rounded,filled", fillcolor="green"];
+node1 [label="petal_width > 0.80\ngini: 3.33e-1", shape="box", style="filled", fillcolor="#fce283"];
+node3 [label="Setosa 1.00", shape="box", style="rounded,filled", fillcolor="#95fc83"];
+node2 [label="petal_length > 4.75\ngini: 1.26e-1", shape="box", style="filled", fillcolor="#fce283"];
+node5 [label="sepal_length > 4.95\ngini: 2.22e-2", shape="box", style="filled", fillcolor="#fce283"];
+node11 [label="sepal_width > 2.45\ngini: 0.00e0", shape="box", style="filled", fillcolor="#fce283"];
+node23 [label="Versicolor 1.00", shape="box", style="rounded,filled", fillcolor="#95fc83"];
+node22 [label="Virginica 1.00", shape="box", style="rounded,filled", fillcolor="#95fc83"];
+node10 [label="Versicolor 1.00", shape="box", style="rounded,filled", fillcolor="#95fc83"];
+node4 [label="sepal_length > 7.00\ngini: 1.88e-1", shape="box", style="filled", fillcolor="#fce283"];
+node9 [label="sepal_width > 3.25\ngini: 2.35e-1", shape="box", style="filled", fillcolor="#fce283"];
+node19 [label="Virginica 0.84", shape="box", style="rounded,filled", fillcolor="#95fc83"];
+node18 [label="Virginica 1.00", shape="box", style="rounded,filled", fillcolor="#95fc83"];
+node8 [label="Virginica 1.00", shape="box", style="rounded,filled", fillcolor="#95fc83"];
 node1 -> node3 [label="no"]
 node1 -> node2 [label="yes"]
 node2 -> node5 [label="no"]
