@@ -1,7 +1,7 @@
 #+BLOG: noise on the net
 #+POSTID: 487
 #+ORG2BLOG:
-#+DATE: [2024-06-03 lun 22:45]
+#+DATE: [2024-06-09 dom 22:45]
 #+OPTIONS: toc:t num:nil todo:nil pri:nil tags:nil ^:nil
 #+CATEGORY: Machine learning
 #+TAGS: Rust
@@ -62,9 +62,10 @@ In this post I will complete the creation of the decision tree by iteratively
 building it with Gini metric; I will show a pre-order depth first traversal
 which will be used to create tree charts using graphviz dot language
 
+The code for this post is available [[https://github.com/noiseOnTheNet/post017_binary_decision_tree][here]]
+
 In the last post we saw how to evaluate a Gini inpurity index across
-all features
-TODO ADD LINK
+all features [[https://noiseonthenet.space/noise/2024/05/sowing-a-decision-tree/][Sowing a (Decision) Tree]]
 
 
 * Basic data structure
@@ -110,7 +111,7 @@ predicted class
 
 #+begin_src rust
 pub fn predict_majority_dataframe<'a>(
-    data: &'a DataFrame, target: &str
+    data: & 'a DataFrame, target: & str
 ) -> PolarsResult<Decision> {
     // extract the categorical target column
     let labels = data.column(target)?.categorical()?;
@@ -390,19 +391,19 @@ impl <'a>DTreeBuilder<'a> {
 
 * Dumping the tree
 ** Pre-order depth first traversal
-in a previoust post TODO ADD LINK I show how to create a depth first traversal
+in a previoust [[https://noiseonthenet.space/noise/2024/04/climbing-a-binary-tree/][post]] I show how to create a depth first traversal
 algorithm.
 
-To be more specific it was a post-order traversal: you can find more details
+To be more specific it was a *post-order* traversal: you can find more details
 about the kind of traversal algorithms [[https://en.wikipedia.org/wiki/Tree_traversal][in this Wikipedia page]].
 
-To draw our tree we now need a pre-order traversal iterator: TODO ADD NAME
+To draw our tree we now need a *pre-order* traversal iterator: [[https://noiseonthenet.space/noise/2024/04/climbing-a-binary-tree/#comment-11][Caleb Sander Mateos]]
 suggested me in a comment how to use a stack to implement this kind of
 traversal: my code follows
 
 I added some more useful information to the iterator result
 - the current node depth
-- its number according to the binary position described TODO ADD LINK
+- its number according to the binary position described [[https://noiseonthenet.space/noise/2024/03/stacking-bits/][here]]
 - a boolean describing if the current node is a leaf
 
 #+begin_src rust
@@ -432,7 +433,7 @@ impl<'a, T> PreOrderTraversalIter<'a, T>{
                     TreeStackItem{
                         id: 1,
                         level: 1,
-                        node: &node
+                        node: & node
                     }],
             },
         }
@@ -441,7 +442,7 @@ impl<'a, T> PreOrderTraversalIter<'a, T>{
 
 impl<'a, T> Iterator for PreOrderTraversalIter<'a, T>{
     type Item = TreeItem<'a, T>;
-    fn next(&mut self) -> Option<Self::Item> {
+    fn next(& mut self) -> Option<Self::Item> {
         if let Some(item) = self.stack.pop() {
             let mut leaf: bool = true;
             if let Some(ref left) = item.node.left{
@@ -476,6 +477,10 @@ impl<'a, T> Iterator for PreOrderTraversalIter<'a, T>{
 }
 
 #+end_src
+
+#+RESULTS:
+: error: Could not compile `cargoRLmMQN`.
+
 ** creating a Dot DSL reification
 This is an example of the chart of a sorting tree:
 
@@ -515,7 +520,7 @@ node2 -> node4 [label="<"]
 #+RESULTS:
 [[file:images/post017_example_tree.png]]
 
-I chose graphviz TODO ADD LINK to automatically generate a chart of my tree
+I chose [[https://graphviz.org/][graphviz]] to automatically generate a chart of my tree
 graph, I used a subset of its graph language dot.
 
 In these cases the best way for me to create a language generator is to choose
@@ -560,7 +565,7 @@ Per each one I created its text representation following dot grammar
 #+begin_src rust
 
 impl Display for DotNode{
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(& self, f: & mut fmt::Formatter) -> fmt::Result {
         let style: String = match self.style {
             None => "".into(),
             Some(ref kind) => format!(", style=\"{}\"",kind)
@@ -575,13 +580,13 @@ impl Display for DotNode{
 
 
 impl Display for DotEdge{
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(& self, f: & mut fmt::Formatter) -> fmt::Result {
         write!(f,"{} -> {} [label=\"{}\"]",self.first,self.second,self.label)
     }
 }
 
 impl Display for DotRank{
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(& self, f: & mut fmt::Formatter) -> fmt::Result {
         write!(f,"{{rank = same; {};}}",self.0.join("; "))
     }
 }
@@ -660,15 +665,15 @@ finally its transformation into a string
 
 #+begin_src rust
 impl Display for Dot{
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(& self, f: & mut fmt::Formatter) -> fmt::Result {
         let mut graph: Vec<String>=vec!["digraph {".into(),"rankdir = BT;".into(),"subgraph{".into()];
-        for node in &self.nodes{
+        for node in & self.nodes{
             graph.push(node.to_string());
         }
-        for edge in &self.edges{
+        for edge in & self.edges{
             graph.push(edge.to_string());
         }
-        for rank in &self.ranks{
+        for rank in & self.ranks{
             graph.push(rank.to_string());
         }
         graph.push("}".into());
@@ -677,7 +682,10 @@ impl Display for Dot{
     }
 }
 #+end_src
-#+begin_src dot :file images/post017_tree_result.png :exports results
+
+We are now finally able to generate the graph we saw at the beginning of the article
+
+#+begin_src dot :file images/post017_tree_result.png :exports both
 digraph {
 rankdir = BT;
 subgraph{
@@ -728,55 +736,101 @@ node4 -> node8 [label="yes"]
 #+RESULTS:
 [[file:images/post017_tree_result.png]]
 
-* Iterating over rows to do predictions from a dataframe
-https://stackoverflow.com/questions/72440403/iterate-over-rows-polars-rust
+* Some effects of tree creation options
+Here I show the effect of a couple of options
+- not reusing features (quite uncommon for this kind of tree)
+- limiting tree depth
 
-* Questions
-- what kind of analysis can we do?
-  - categorical variables and categorical label
-    - error can be calculated via accuracy
-  - continuous varibale and categorical label
-    - error can be calculated via Gini inpurity or Shannon entropy gain
-    - iris classical data frame can be compared with scikit-learn example
-  - continuous variables and continuous target
-    - error can be calculated via MSE, MAE etc
-- Which algorithm are we going to use?
-  - ID.3 greedy?
-  - CART?
-- can we use data in the stack?
-  - Not easily: we need to access features dynamically
-  - Pola.rs looks like a simple choice
-- do polars share memory when read and filtered?
-  - yes
-- what does the tree node contain?
-  - the current filtered subdataframe
-    - includes its size implicitly
-  - optionally, if not leaf:
-    - the feature used to split
-    - the feature treshold
-    - the gain
-    - the left and right branch
-- how do we build?
-  - recursive building of nodes
-- which stop rules do we apply?
-  - omogeneity of the current sample
-  - size of the sample
-  - depth level
-- how do we predict a list of values?
-  - need a specific method
-  - multiple value classes fit well with gini and entropy
-- how do we evaluate overfit?
-  - cross validation for depth
-- how do we interface the existing tree structure?
-  - composition (for extended methods), generic for embedded tree and
-    dereferencing?
-    - composition
-  - is it possible to have specific methods with just an implementation?
-    - by defining a trait on the content type
+** Not reusing features
+This is typically used when using categorical features. A popular approach is to
+transform these feature using one-hot encoding, so each column contains only a
+boolean value. In this case it does not make sense to find more than one split
+value.
 
-** Evaluating the effectiveness of the algorithm
-- tuning hyperparameters using cross validation
 
+#+begin_src dot :file images/post017_tree_no_reuse.png :exports results
+digraph {
+rankdir = BT;
+subgraph{
+node1 [label="petal_width > 0.80\ngini: 3.33e-1", shape="box", style="filled", fillcolor="#fce283"];
+node3 [label="Setosa 1.00", shape="box", style="rounded,filled", fillcolor="#95fc83"];
+node2 [label="petal_length > 4.75\ngini: 1.26e-1", shape="box", style="filled", fillcolor="#fce283"];
+node5 [label="sepal_length > 4.95\ngini: 2.22e-2", shape="box", style="filled", fillcolor="#fce283"];
+node11 [label="sepal_width > 2.45\ngini: 0.00e0", shape="box", style="filled", fillcolor="#fce283"];
+node23 [label="Versicolor 1.00", shape="box", style="rounded,filled", fillcolor="#95fc83"];
+node22 [label="Virginica 1.00", shape="box", style="rounded,filled", fillcolor="#95fc83"];
+node10 [label="Versicolor 1.00", shape="box", style="rounded,filled", fillcolor="#95fc83"];
+node4 [label="sepal_length > 7.00\ngini: 1.88e-1", shape="box", style="filled", fillcolor="#fce283"];
+node9 [label="sepal_width > 3.25\ngini: 2.35e-1", shape="box", style="filled", fillcolor="#fce283"];
+node19 [label="Virginica 0.84", shape="box", style="rounded,filled", fillcolor="#95fc83"];
+node18 [label="Virginica 1.00", shape="box", style="rounded,filled", fillcolor="#95fc83"];
+node8 [label="Virginica 1.00", shape="box", style="rounded,filled", fillcolor="#95fc83"];
+node1 -> node3 [label="no"]
+node1 -> node2 [label="yes"]
+node2 -> node5 [label="no"]
+node5 -> node11 [label="no"]
+node11 -> node23 [label="no"]
+node11 -> node22 [label="yes"]
+node5 -> node10 [label="yes"]
+node2 -> node4 [label="yes"]
+node4 -> node9 [label="no"]
+node9 -> node19 [label="no"]
+node9 -> node18 [label="yes"]
+node4 -> node8 [label="yes"]
+{rank = same; node1;}
+{rank = same; node3; node2;}
+{rank = same; node5; node4;}
+{rank = same; node11; node10; node9; node8;}
+{rank = same; node23; node22; node19; node18;}
+}
+}
+
+#+end_src
+** Limiting tree depth
+In this case we allow each branch to keep splitting until a fixed limit.
+
+More sophisticated approaches are possible like to to prune each branch dynamically.
+#+begin_src dot :file images/post017_tree_limited.png :exports results
+digraph {
+rankdir = BT;
+subgraph{
+node1 [label="petal_width > 0.80\ngini: 3.33e-1", shape="box", style="filled", fillcolor="#fce283"];
+node3 [label="Setosa 1.00", shape="box", style="rounded,filled", fillcolor="#95fc83"];
+node2 [label="petal_width > 1.75\ngini: 1.10e-1", shape="box", style="filled", fillcolor="#fce283"];
+node5 [label="petal_length > 4.95\ngini: 8.56e-2", shape="box", style="filled", fillcolor="#fce283"];
+node11 [label="Versicolor 0.98", shape="box", style="rounded,filled", fillcolor="#95fc83"];
+node10 [label="Virginica 0.67", shape="box", style="rounded,filled", fillcolor="#95fc83"];
+node4 [label="petal_length > 4.85\ngini: 2.90e-2", shape="box", style="filled", fillcolor="#fce283"];
+node9 [label="Virginica 0.67", shape="box", style="rounded,filled", fillcolor="#95fc83"];
+node8 [label="Virginica 1.00", shape="box", style="rounded,filled", fillcolor="#95fc83"];
+node1 -> node3 [label="no"]
+node1 -> node2 [label="yes"]
+node2 -> node5 [label="no"]
+node5 -> node11 [label="no"]
+node5 -> node10 [label="yes"]
+node2 -> node4 [label="yes"]
+node4 -> node9 [label="no"]
+node4 -> node8 [label="yes"]
+{rank = same; node1;}
+{rank = same; node3; node2;}
+{rank = same; node5; node4;}
+{rank = same; node11; node10; node9; node8;}
+}
+}
+
+#+end_src
+
+* Conclusions?
+We still need to evaluate the performance of our tree using our data and other implementations too.
+
+In order to complete this step we need an effective way to
+- create predictions from some unknown data
+- cross validate hyperparameters tuning
+
+But these are subject for another post
 # images/post017_full_tree_result.png https://noiseonthenet.space/noise/wp-content/uploads/2024/06/post017_full_tree_result.png
 # images/post017_example_tree.png https://noiseonthenet.space/noise/wp-content/uploads/2024/06/post017_example_tree.png
 # images/post017_tree_result.png https://noiseonthenet.space/noise/wp-content/uploads/2024/06/post017_tree_result.png
+
+# images/post017_tree_no_reuse.png https://noiseonthenet.space/noise/wp-content/uploads/2024/06/post017_tree_no_reuse.png
+# images/post017_tree_limited.png https://noiseonthenet.space/noise/wp-content/uploads/2024/06/post017_tree_limited.png
