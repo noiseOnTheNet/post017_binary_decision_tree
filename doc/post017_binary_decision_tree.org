@@ -1,7 +1,7 @@
 #+BLOG: noise on the net
 #+POSTID: 487
 #+ORG2BLOG:
-#+DATE: [2024-06-09 dom 22:45]
+#+DATE: [2024-06-09 dom 15:45]
 #+OPTIONS: toc:t num:nil todo:nil pri:nil tags:nil ^:nil
 #+CATEGORY: Machine learning
 #+TAGS: Rust
@@ -170,7 +170,7 @@ optimize the metric:
 
 pub fn evaluate_best_split<'a>(
     data: & DataFrame,
-    features: & HashSet <&str>,
+    features: & HashSet <& str>,
     target: & str,
 ) -> PolarsResult<Rule> {
 
@@ -178,7 +178,7 @@ pub fn evaluate_best_split<'a>(
     let metrics: PolarsResult<Vec<LazyFrame>> = features
         .iter()
         .map(|feature| {
-            Ok(evaluate_metric(&data, feature, target)?
+            Ok(evaluate_metric(& data, feature, target)?
                 .lazy()
                 .with_column(feature.lit().alias("feature")))
         })
@@ -206,7 +206,7 @@ pub fn evaluate_best_split<'a>(
         .str()?
         .iter()
         .flatten()
-        .map(|name| <&str as Into<String>>::into(name))
+        .map(|name| <& str as Into<String>>::into(name))
         .collect();
 
     let chosen_split_point: f64 = best_split.column("split")?.f64()?.get(0).unwrap();
@@ -310,7 +310,7 @@ There is a public access point which receives only the original training dataset
 impl <'a>DTreeBuilder<'a> {
     // ...
     pub fn build(
-        &self,
+        & self,
         data: & DataFrame,
     ) -> PolarsResult<btree::Tree<Decision>> {
         let current_features = if !self.reuse_features {
@@ -335,10 +335,10 @@ evaluated to find the most effective split according to our current metrics
 impl <'a>DTreeBuilder<'a> {
     // ...
     fn build_node(
-        &self,
+        & self,
         data: & DataFrame,
         level: usize, // tree depth
-        features: & Option<HashSet<&str>>, // optionally used to remove features
+        features: & Option<HashSet<& str>>, // optionally used to remove features
     ) -> PolarsResult<btree::Node<Decision>> {
         let prediction = predict_majority_dataframe(data, self.target)?;
         let confidence = prediction.confidence;
